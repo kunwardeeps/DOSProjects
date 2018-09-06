@@ -21,16 +21,6 @@ defmodule DosProject do
   end
 
   @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> DosProject.hello
-      :world
-
-  """
-
-  @doc """
   Utility method for getting sum of a list
   """
   def sum(list) do
