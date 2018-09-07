@@ -6,7 +6,7 @@ defmodule DosProject do
 
   @impl true
   def init(args) do
-    IO.inspect(args)
+    #IO.inspect(args)
     {:ok, args}
   end
 
@@ -62,7 +62,6 @@ defmodule DosProject do
   end
 
   def ran(numworkers, workunit, k) do
-    #IO.puts "hola...."
     if numworkers>0 do
       DosProject.ran(numworkers - 1, workunit, k)
       i = ((numworkers * workunit) - workunit) + 1
@@ -72,31 +71,19 @@ defmodule DosProject do
   end
 
   def start_loop(i,n,k) do
+
+    quantum = round(:math.log(n)/2.303)
+
+    if (quantum > 1) do
+      workunit = :math.pow(10, round(div(quantum, 2)))
+      IO.puts workunit
+    else
+      workunit = quantum
+    end
     
     workunit = 10    #i.e. # of processes each worker will handle
-    IO.puts workunit
     numworkers = div(n, workunit) #eg. 25
-
-    # if rem(n, workunit) > 0 do
-    #   numworkers = div(n, workunit) + 1
-    # else
-    #   numworkers = div(n, workunit)
-    # end
-
-    IO.puts numworkers 
-
     ran(numworkers, workunit, k)
-
-    # def ran(numworkers) do
-
-    #   if n>0 do
-    #     ran(numworkers - 1)
-    #     i = ((numworkers * workunit) - workunit) + 1
-    #     {:ok, pid} = GenServer.start_link(DosProject, [:subtask], [])
-    #     GenServer.cast(pid, {:subtask, i, workunit * numworkers, k})
-    #   end
-    # end
-
   end
 
 end
