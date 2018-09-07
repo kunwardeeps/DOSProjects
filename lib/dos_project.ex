@@ -53,24 +53,20 @@ defmodule DosProject do
     num |> :math.sqrt() |> :erlang.trunc() |> :math.pow(2) == num
   end
 
-  @doc """
-  Client side.
-  Use for starting a new sub task for the problem
-  """
-  def start(n,k) do
-    start_loop(1,n,k)
-  end
-
-  def ran(numworkers, workunit, k) do
+  def loop(numworkers, workunit, k) do
     if numworkers>0 do
-      DosProject.ran(numworkers - 1, workunit, k)
+      DosProject.loop(numworkers - 1, workunit, k)
       i = ((numworkers * workunit) - workunit) + 1
       {:ok, pid} = GenServer.start_link(DosProject, [:subtask], [])
       GenServer.cast(pid, {:subtask, i, workunit * numworkers, k})
     end
   end
 
-  def start_loop(i,n,k) do
+  @doc """
+  Client side.
+  Use for starting a new sub task for the problem
+  """
+  def start(n,k) do
 
     quantum = round(:math.log(n)/2.303)
 
@@ -80,10 +76,10 @@ defmodule DosProject do
     else
       workunit = quantum
     end
-    
+
     workunit = 10    #i.e. # of processes each worker will handle
     numworkers = div(n, workunit) #eg. 25
-    ran(numworkers, workunit, k)
+    loop(numworkers, workunit, k)
   end
 
 end
