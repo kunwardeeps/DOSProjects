@@ -69,17 +69,23 @@ defmodule DosProject do
   def start(n,k) do
 
     quantum = round(:math.log(n)/2.303)
+    IO.puts "quantum ->"<> Integer.to_string(quantum)
 
-    if (quantum > 1) do
-      workunit = :math.pow(10, round(div(quantum, 2)))
-      IO.puts workunit
-    else
-      workunit = quantum
-    end
+    workunit =
+      case quantum do
+        1 -> :quantum
+        _ -> trunc(:math.pow(10, round(quantum/2)))
+      end
 
-    workunit = 10    #i.e. # of processes each worker will handle
-    numworkers = div(n, workunit) #eg. 25
+    IO.puts "workunit ->"<> Integer.to_string(workunit)
+    IO.puts "odd seq.  ->" <> Integer.to_string(rem(n, workunit))
+
+    numworkers =
+      case rem(n, workunit) do
+        0 -> div(n, workunit)
+        _ -> div(n, workunit) + 1
+      end
+
     loop(numworkers, workunit, k)
   end
-
 end
