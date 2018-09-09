@@ -53,12 +53,14 @@ defmodule DosProject do
     num |> :math.sqrt() |> :erlang.trunc() |> :math.pow(2) == num
   end
 
-  def loop(numworkers, workunit, k) do
+  def loop(numworkers, workunit, k, n) do
     if numworkers>0 do
-      DosProject.loop(numworkers - 1, workunit, k)
+
+      DosProject.loop(numworkers - 1, workunit, k, n)
       i = ((numworkers * workunit) - workunit) + 1
       {:ok, pid} = GenServer.start_link(DosProject, [:subtask], [])
-      GenServer.cast(pid, {:subtask, i, workunit * numworkers, k})
+      metric = if (n - (i - 1)) < workunit, do: n, else: workunit * numworkers
+      GenServer.cast(pid, {:subtask, i, metric, k})
     end
   end
 
@@ -69,7 +71,6 @@ defmodule DosProject do
   def start(n,k) do
 
     quantum = round(:math.log(n)/2.303)
-    IO.puts "quantum ->"<> Integer.to_string(quantum)
 
     workunit =
       case quantum do
@@ -77,15 +78,12 @@ defmodule DosProject do
         _ -> trunc(:math.pow(10, round(quantum/2)))
       end
 
-    IO.puts "workunit ->"<> Integer.to_string(workunit)
-    IO.puts "odd seq.  ->" <> Integer.to_string(rem(n, workunit))
-
     numworkers =
       case rem(n, workunit) do
         0 -> div(n, workunit)
         _ -> div(n, workunit) + 1
       end
 
-    loop(numworkers, workunit, k)
+    loop(numworkers, workunit, k, n)
   end
 end
