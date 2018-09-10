@@ -4,18 +4,25 @@ defmodule DosProject do
   Documentation for DosProject.
   """
 
+  #Server side methods
   @impl true
   def init(args) do
     #IO.inspect(args)
     {:ok, args}
   end
 
+  @doc """
+  Handle async calls
+  """
   @impl true
   def handle_cast({:subtask, i, n, k}, state) do
     recurse(i, n, k)
     {:noreply, [state]}
   end
 
+  @doc """
+  Outputs first number if sum of squares of given list is a perfect square
+  """
   def recurse(i,n,k) do
     if (i <= n) do
       if (getSumOfSquares(i,i+k-1) |> perfectSquare?) do
@@ -53,37 +60,46 @@ defmodule DosProject do
     num |> :math.sqrt() |> :erlang.trunc() |> :math.pow(2) == num
   end
 
-  def loop(numworkers, workunit, k, n) do
-    if numworkers>0 do
+  # Client side code
 
-      DosProject.loop(numworkers - 1, workunit, k, n)
+  @doc """
+  Use for starting sub tasks for the main problem
+  """
+  def start(n,k) do
+    workunit = getWorkUnit(n)
+    numworkers = getNumOfWorkers(n, workunit)
+    loop(numworkers, workunit, n, k)
+  end
+
+  @doc """
+  Start async processes by using Genserver.cast
+  """
+  def loop(numworkers, workunit, n, k) do
+    if numworkers>0 do
       i = ((numworkers * workunit) - workunit) + 1
       {:ok, pid} = GenServer.start_link(DosProject, [:subtask], [])
-      metric = if (n - (i - 1)) < workunit, do: n, else: workunit * numworkers
-      GenServer.cast(pid, {:subtask, i, metric, k})
+      n1 = if (n - (i - 1)) < workunit, do: n, else: workunit * numworkers
+      GenServer.cast(pid, {:subtask, i, n1, k})
+      DosProject.loop(numworkers - 1, workunit, n, k)
     end
   end
 
   @doc """
-  Client side.
-  Use for starting a new sub task for the problem
+  Total number of workers spawned
   """
-  def start(n,k) do
+  def getNumOfWorkers(n,workunit) do
+    n/workunit |> Float.ceil |> Kernel.trunc
+  end
 
-    quantum = round(:math.log(n)/2.303)
-
-    workunit =
-      case quantum do
-        1 -> :quantum
-        _ -> trunc(:math.pow(10, round(quantum/2)))
-      end
-
-    numworkers =
-      case rem(n, workunit) do
-        0 -> div(n, workunit)
-        _ -> div(n, workunit) + 1
-      end
-
-    loop(numworkers, workunit, k, n)
+  @doc """
+  Total number of calculations performed by each worker
+  """
+  def getWorkUnit(n) do
+    logn = :math.log(n)/2.303 |> round
+    if (logn == 1) do
+      n
+    else
+      :math.pow(10, round(logn/2)) |> trunc
+    end
   end
 end
