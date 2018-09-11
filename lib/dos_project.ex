@@ -4,7 +4,7 @@ defmodule DosProject do
   Documentation for DosProject.
   """
 
-  #Server side methods
+  #Worker (server) methods
   @impl true
   def init(args) do
     #IO.inspect(args)
@@ -60,7 +60,7 @@ defmodule DosProject do
     num |> :math.sqrt() |> :erlang.trunc() |> :math.pow(2) == num
   end
 
-  # Client side code
+  # Supervisor (client) methods
 
   @doc """
   Use for starting sub tasks for the main problem
