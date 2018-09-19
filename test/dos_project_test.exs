@@ -3,6 +3,6 @@ defmodule DosProjectTest do
   doctest DosProject
 
   test "greets the world" do
-    assert DosProject.hello() == :world
+    assert DosProject.loop(1000, 1000, 1000, 409)
   end
 end

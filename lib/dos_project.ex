@@ -76,11 +76,11 @@ defmodule DosProject do
   """
   def loop(numworkers, workunit, n, k) do
     if numworkers>0 do
+      DosProject.loop(numworkers - 1, workunit, n, k)
       i = ((numworkers * workunit) - workunit) + 1
       {:ok, pid} = GenServer.start_link(DosProject, [:subtask], [])
       n1 = if (n - (i - 1)) < workunit, do: n, else: workunit * numworkers
       GenServer.cast(pid, {:subtask, i, n1, k})
-      DosProject.loop(numworkers - 1, workunit, n, k)
     end
   end
 
