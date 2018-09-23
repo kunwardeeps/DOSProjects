@@ -11,26 +11,19 @@ defmodule GossipPushSumMain do
   """
   def start(numNodes, _topology, algorithm) do
     init_registry()
-    init_nodes(numNodes, 1)
-    GossipPushSumMain.print("#{inspect(numNodes)} nodes initiated!")
+    print("Registry intialized!")
     case algorithm do
-      @input_gossip -> GossipMain.start(numNodes)
+      @input_gossip -> start_gossip_main(numNodes)
     end
+  end
+
+  def start_gossip_main(numNodes) do
+    {:ok, pid} = GenServer.start_link(GossipMain, [numNodes, 0], [])
+    GenServer.call(pid, {})
   end
 
   def init_registry() do
     Registry.start_link(keys: :unique, name: Node.Registry)
-  end
-
-  def init_nodes(numNodes, i) do
-    if (i <= numNodes) do
-      GenServer.start_link(Network.Node, [i, numNodes, 0], name: get_registry_node_name(i))
-      init_nodes(numNodes, i+1)
-    end
-  end
-
-  def get_registry_node_name(id) do
-    {:via, Registry, {Node.Registry, id}}
   end
 
   def print(msg) do
