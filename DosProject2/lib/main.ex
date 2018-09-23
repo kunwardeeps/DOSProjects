@@ -9,7 +9,7 @@ defmodule GossipPushSumMain do
   @doc """
   Entry point
   """
-  def start(numNodes, topology, algorithm) do
+  def start(numNodes, _topology, algorithm) do
     init_registry()
     init_nodes(numNodes, 1)
     GossipPushSumMain.print("#{inspect(numNodes)} nodes initiated!")

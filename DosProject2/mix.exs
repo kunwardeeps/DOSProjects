@@ -11,6 +11,10 @@ defmodule GossipPushSumImpl.MixProject do
     ]
   end
 
+  def escript do
+    [main_module: GossipPushSumMain]
+  end
+
   # Run "mix help compile.app" to learn about applications.
   def application do
     [

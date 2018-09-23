@@ -1,5 +1,6 @@
 defmodule Network.Node do
   use GenServer
+  @maxGossips 10
 
   @impl true
   def init(args) do
@@ -9,9 +10,22 @@ defmodule Network.Node do
   end
 
   @impl true
-  def handle_call({:gossip, message}, _from, [i, numNodes, count]) do
-    GossipPushSumMain.print("Gossip received for node: #{i}, last count = #{count}")
-    {:reply, count, [i, numNodes, count+1]}
+  def handle_cast({:gossip, message}, [i, numNodes, count]) do
+    if (count <= @maxGossips) do
+      GossipPushSumMain.print("Gossip received for node: #{i}, last count = #{count}")
+      forward_gossip(numNodes,message)
+      {:noreply, [i, numNodes, count+1]}
+    else
+      GossipPushSumMain.print("Limit reached for node: #{i}")
+      {:noreply, [i, numNodes, count]}
+    end
+
+  end
+
+  defp forward_gossip(numNodes, message) do
+    next_node = :rand.uniform(numNodes)
+    GossipPushSumMain.print("Gossip forwarding to #{next_node}")
+    GenServer.cast(GossipMain.get_node_pid(next_node), {:gossip, message})
   end
 
 end
