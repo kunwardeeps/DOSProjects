@@ -76,4 +76,10 @@ defmodule GossipPushSum.Registry do
     GenServer.call(ProcRegistry, {:remove, key})
   end
 
+  def get_next_node(current_node, topology) do
+    case topology do
+      "full_network" -> get_random(current_node)
+    end
+  end
+
 end

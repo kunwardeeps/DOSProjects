@@ -2,15 +2,15 @@ defmodule GossipMain do
   use GenServer
 
   @impl true
-  def init([numNodes, exit_count, main_pid]) do
-    init_nodes(numNodes, 1)
-    {:ok, [numNodes, exit_count, main_pid]}
+  def init([numNodes, exit_count, main_pid, topology]) do
+    init_nodes(numNodes, 1, topology)
+    {:ok, [numNodes, exit_count, main_pid, topology]}
   end
 
   @impl true
-  def handle_call(_request, _from, [numNodes, exit_count, main_pid]) do
+  def handle_call(_request, _from, [numNodes, exit_count, main_pid, topology]) do
     start(numNodes)
-    {:reply, [], [numNodes, exit_count, main_pid]}
+    {:reply, [], [numNodes, exit_count, main_pid, topology]}
   end
 
   @impl true
@@ -31,12 +31,12 @@ defmodule GossipMain do
     GenServer.cast(first_node, {:gossip, "Fuch my life"})
   end
 
-  def init_nodes(numNodes, i) do
+  def init_nodes(numNodes, i, topology) do
     if (i <= numNodes) do
-      {:ok, pid} = GenServer.start_link(Gossip.Node, [i, numNodes, 0])
+      {:ok, pid} = GenServer.start_link(Gossip.Node, [i, numNodes, 0, topology])
       GossipPushSum.Registry.put(i, pid)
       Process.monitor(pid)
-      init_nodes(numNodes, i+1)
+      init_nodes(numNodes, i+1, topology)
     end
   end
 end

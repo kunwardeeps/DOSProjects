@@ -4,27 +4,27 @@ defmodule Gossip.Node do
 
   @impl true
   def init(args) do
-    [i, _, _] = args
+    [i, _, _, _] = args
     GossipPushSum.Main.print("Process id:#{inspect(i)} initiated")
     {:ok, args}
   end
 
   @impl true
-  def handle_cast({:gossip, message}, [i, numNodes, count]) do
+  def handle_cast({:gossip, message}, [i, numNodes, count, topology]) do
     GossipPushSum.Main.print("Gossip received for node: #{i}, current count = #{count+1}")
-    next_node = GossipPushSum.Registry.get_random(i)
+    next_node = GossipPushSum.Registry.get_next_node(i, topology)
 
     cond do
       next_node == self() ->
         GossipPushSum.Registry.remove(i)
-        {:stop, :normal, [i, numNodes, count+1]}
+        {:stop, :normal, [i, numNodes, count+1, topology]}
       (count+1 < @maxGossips) ->
         forward_gossip(i, next_node,message)
-        {:noreply, [i, numNodes, count+1]}
+        {:noreply, [i, numNodes, count+1, topology]}
       true ->
         forward_gossip(i, next_node,message)
         GossipPushSum.Registry.remove(i)
-        {:stop, :normal, [i, numNodes, count+1]}
+        {:stop, :normal, [i, numNodes, count+1, topology]}
     end
   end
 

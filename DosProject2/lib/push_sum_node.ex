@@ -3,27 +3,19 @@ defmodule PushSum.Node do
 
   @impl true
   def init(args) do
-    [_numNodes, i, _s, _w, _warning_count] = args
+    [_numNodes, i, _s, _w, _warning_count, _topology] = args
     GossipPushSum.Main.print("Process id:#{inspect(i)} initiated")
     {:ok, args}
   end
 
-  # @impl true
-  # def handle_cast({:first_message, s, w}, [numNodes, i, s, w, warning_count]) do
-  #   GossipPushSum.Main.print("Message received for node: #{i}, state = #{inspect([numNodes, i, s, w, warning_count])}")
-  #   next_node = GossipPushSum.Registry.get_random(i)
-  #   forward_message(i, next_node, s/2, w/2)
-  #   {:noreply, [numNodes, i, s/2, w/2, warning_count]}
-  # end
-
   @impl true
-  def handle_cast({:message, s1, w1}, [numNodes, i, s, w, warning_count]) do
+  def handle_cast({:message, s1, w1}, [numNodes, i, s, w, warning_count, topology]) do
     GossipPushSum.Main.print("Message #{inspect{:message, s1, w1}} received for node: #{i}, state = #{inspect([numNodes, i, s, w, warning_count])}")
-    next_node = GossipPushSum.Registry.get_random(i)
+    next_node = GossipPushSum.Registry.get_next_node(i, topology)
     new_s = (s1 + s)/2
     new_w = (w1 + w)/2
     new_warning_count = get_warning_count(s/w, new_s/new_w, warning_count)
-    new_state = [numNodes, i, new_s, new_w, new_warning_count]
+    new_state = [numNodes, i, new_s, new_w, new_warning_count, topology]
     #GossipPushSum.Main.print("For node: #{i}, state = #{inspect(new_state)}")
     cond do
       #Last node case
