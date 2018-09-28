@@ -1,4 +1,4 @@
-defmodule GossipPushSum.Node do
+defmodule Gossip.Node do
   use GenServer, restart: :transient
   @maxGossips 10
 

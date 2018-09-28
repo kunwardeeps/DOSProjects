@@ -4,16 +4,18 @@ defmodule GossipPushSum.Main do
   """
 
   @input_gossip "gossip"
+  @input_push_sum "push_sum"
   @debug true
 
   @doc """
   Entry point
   """
-  def start(numNodes, _topology \\ "a", algorithm \\ "gossip") do
+  def start(numNodes, _topology \\ "a", algorithm \\ "gossip", start_nodes \\ 2) do
     init_registry()
     print("Registry intialized!")
     case algorithm do
-      @input_gossip -> start_gossip_main(numNodes)
+      @input_gossip -> start_algo_main(GossipMain, numNodes, 1, start_nodes)
+      @input_push_sum -> start_algo_main(PushSumMain, numNodes, 1, start_nodes)
     end
     wait_for_convergence()
   end
@@ -22,14 +24,17 @@ defmodule GossipPushSum.Main do
     receive do
       {:converge, msg} -> IO.puts(msg)
     after
-      100_000 -> IO.puts("Couldn't converge even after 10s!")
+      20_000 -> IO.puts("Couldn't converge even after 20s!")
     end
 
   end
 
-  def start_gossip_main(numNodes) do
-    {:ok, pid} = GenServer.start_link(GossipMain, [numNodes, 0, self()])
-    GenServer.call(pid, {})
+  def start_algo_main(module, numNodes, i, start_nodes) do
+    if (i <= start_nodes) do
+      {:ok, pid} = GenServer.start_link(module, [numNodes, 0, self()])
+      GenServer.call(pid, {})
+      start_algo_main(module, numNodes, i+1, start_nodes)
+    end
   end
 
   def init_registry() do
@@ -42,4 +47,5 @@ defmodule GossipPushSum.Main do
       IO.inspect(msg)
     end
   end
+
 end

@@ -28,7 +28,7 @@ defmodule GossipPushSum.Registry do
   @impl true
   def handle_call({:random_value, i}, _from, processes) do
     random_key = Map.keys(processes) |> List.delete(i) |> handle_empty_list(i)
-    IO.puts("i = #{i}, random = #{random_key}")
+    #IO.puts("i = #{i}, random = #{random_key}")
     {:reply, Map.get(processes, random_key), processes}
   end
 
