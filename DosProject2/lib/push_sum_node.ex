@@ -10,7 +10,7 @@ defmodule PushSum.Node do
 
   @impl true
   def handle_cast({:message, s1, w1}, [numNodes, i, s, w, warning_count, topology]) do
-    GossipPushSum.Main.print("Message #{inspect{:message, s1, w1}} received for node: #{i}, state = #{inspect([numNodes, i, s, w, warning_count])}")
+    GossipPushSum.Main.print("Message #{inspect{:message, s1, w1}} received for node: #{i}, state = #{inspect([numNodes, i, s, w, warning_count, topology])}")
     next_node = GossipPushSum.Registry.get_next_node(i, topology)
     new_s = (s1 + s)/2
     new_w = (w1 + w)/2
@@ -43,7 +43,7 @@ defmodule PushSum.Node do
   end
 
   @impl true
-  def terminate(_reason, [_numNodes, i, _s, _w, _warning_count]) do
+  def terminate(_reason, [_numNodes, i, _s, _w, _warning_count, _topology]) do
     GossipPushSum.Main.print("Limit reached for node: #{i} so shutting down...")
   end
 

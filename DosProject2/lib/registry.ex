@@ -68,7 +68,7 @@ defmodule GossipPushSum.Registry do
   end
 
   #Excludes ith key
-  def get_random(i) do
+  def get_random_full_network(i) do
     GenServer.call(ProcRegistry, {:random_value, i})
   end
 
@@ -76,9 +76,15 @@ defmodule GossipPushSum.Registry do
     GenServer.call(ProcRegistry, {:remove, key})
   end
 
+  def get_random_line(current_node) do
+    #TODO
+  end
+
   def get_next_node(current_node, topology) do
     case topology do
-      "full_network" -> get_random(current_node)
+      "full_network" -> get_random_full_network(current_node)
+      "line" -> get_random_line(current_node)
+      _ -> IO.puts("Error: Invalid topology!")
     end
   end
 

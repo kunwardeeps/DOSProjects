@@ -29,7 +29,7 @@ defmodule Gossip.Node do
   end
 
   @impl true
-  def terminate(_reason, [i, _numNodes, _count]) do
+  def terminate(_reason, [i, _numNodes, _count, _topology]) do
     GossipPushSum.Main.print("Limit reached for node: #{i} so shutting down...")
   end
 

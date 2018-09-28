@@ -28,7 +28,7 @@ defmodule PushSumMain do
   def start(numNodes) do
     first_node_id = :rand.uniform(numNodes)
     first_node_pid = GossipPushSum.Registry.get(first_node_id)
-    GossipPushSum.Main.print("Gossip starting from #{first_node_id}, pid #{inspect(first_node_pid)}")
+    GossipPushSum.Main.print("PushSum starting from #{first_node_id}, pid #{inspect(first_node_pid)}")
     GenServer.cast(first_node_pid, {:message, 0, 0})
   end
 
