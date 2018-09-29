@@ -5,7 +5,7 @@ defmodule GossipPushSum.Main do
 
   @input_gossip "gossip"
   @input_push_sum "push_sum"
-  @debug true
+  @debug false
 
   @doc """
   Entry point
@@ -24,7 +24,7 @@ defmodule GossipPushSum.Main do
     receive do
       {:converge, msg} -> IO.puts(msg)
     after
-      10_000 -> IO.puts("Couldn't converge even after 10s!")
+      20_000 -> IO.puts("Couldn't converge even after 10s!")
     end
 
   end

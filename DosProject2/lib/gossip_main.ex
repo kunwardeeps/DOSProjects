@@ -28,12 +28,12 @@ defmodule GossipMain do
   def start(numNodes) do
     first_node = GossipPushSum.Registry.get(:rand.uniform(numNodes))
     GossipPushSum.Main.print("Gossip starting from #{inspect(first_node)}")
-    GenServer.cast(first_node, {:gossip, "Fuch my life"})
+    GenServer.cast(first_node, {:gossip, "Java sucks"})
   end
 
   def init_nodes(numNodes, i, topology) do
     if (i <= numNodes) do
-      {:ok, pid} = GenServer.start_link(Gossip.Node, [i, numNodes, 0, topology])
+      {:ok, pid} = GenServer.start_link(Gossip.Node, [i, numNodes, 0, topology, self()])
       GossipPushSum.Registry.put(i, pid)
       Process.monitor(pid)
       init_nodes(numNodes, i+1, topology)
