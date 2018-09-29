@@ -14,14 +14,14 @@ defmodule GossipMain do
   end
 
   @impl true
-  def handle_info({:DOWN, _ref, :process, pid, _reason}, [numNodes, exit_count, main_pid]) do
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, [numNodes, exit_count, main_pid, topology]) do
     if (exit_count+1 < numNodes) do
       GossipPushSum.Main.print "Process #{inspect(pid)} down, exit count: #{exit_count+1}!"
-      {:noreply, [numNodes, exit_count+1, main_pid]}
+      {:noreply, [numNodes, exit_count+1, main_pid, topology]}
     else
       GossipPushSum.Main.print("exit count: #{exit_count+1}, so converging...")
       send(main_pid, {:converge, "Converged!"})
-      {:noreply, [numNodes, exit_count+1, main_pid]}
+      {:noreply, [numNodes, exit_count+1, main_pid, topology]}
     end
   end
 
