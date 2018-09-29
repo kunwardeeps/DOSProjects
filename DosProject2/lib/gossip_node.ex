@@ -14,7 +14,9 @@ defmodule Gossip.Node do
     cond do
       count == 0 ->
         GossipPushSum.Main.print("First gossip received for node: #{i}, current count = #{count+1}")
-        gossip_pid = spawn fn -> forward_gossip(i, message, topology) end
+        neighbour_list = GossipPushSum.Registry.get_neighbour_list(i)
+        gossip_pid = spawn fn -> forward_gossip(i, message, topology, numNodes, neighbour_list) end
+
         {:noreply, [i, numNodes, count+1, topology, gossip_pid]}
       (count+1 >= @maxGossips) ->
         GossipPushSum.Main.print("Gossip received for node: #{i}, current count = #{count+1}")
@@ -32,11 +34,13 @@ defmodule Gossip.Node do
     GossipPushSum.Main.print("Limit reached for node: #{i} so shutting down...")
   end
 
-  defp forward_gossip(i, message, topology) do
-    next_node = GossipPushSum.Registry.get_next_node(i, topology)
-    GossipPushSum.Main.print("Gossip forwarding to pid: #{inspect(next_node)} from #{i}")
-    GenServer.cast(next_node, {:gossip, message})
-    forward_gossip(i, message, topology)
+  defp forward_gossip(i, message, topology, numNodes, neighbour_list) do
+    next_node = GossipPushSum.Registry.get_next_node(i, topology, numNodes, neighbour_list)
+    if (next_node != nil) do
+      GossipPushSum.Main.print("Gossip forwarding to pid: #{inspect(next_node)} from #{i}")
+      GenServer.cast(next_node, {:gossip, message})
+      forward_gossip(i, message, topology, numNodes, neighbour_list)
+    end
   end
 
 end
