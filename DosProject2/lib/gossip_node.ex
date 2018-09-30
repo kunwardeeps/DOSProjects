@@ -20,7 +20,8 @@ defmodule Gossip.Node do
           GossipPushSum.Registry.remove(i)
           {:stop, :normal, [i, numNodes, count+1, topology, gossip_pid]}
         else
-          gossip_pid = spawn fn -> forward_gossip(i, message, topology, numNodes, neighbour_list) end
+          gossip_pid = spawn fn -> forward_gossip(i, message, topology, numNodes, neighbour_list, 0, gossip_pid) end
+          Process.monitor(gossip_pid)
           {:noreply, [i, numNodes, count+1, topology, gossip_pid]}
         end
       (count+1 >= @maxGossips) ->
@@ -35,17 +36,31 @@ defmodule Gossip.Node do
   end
 
   @impl true
+  def handle_info({:DOWN, _ref, :process, _pid, _reason}, [i, numNodes, count, topology, gossip_pid]) do
+    GossipPushSum.Registry.remove(i)
+    Process.exit(gossip_pid, :kill)
+    {:stop, :normal, [i, numNodes, count+1, topology, gossip_pid]}
+  end
+
+  @impl true
   def terminate(_reason, [i, _numNodes, _count, _topology, _gossip_pid]) do
     GossipPushSum.Main.print("Limit reached for node: #{i} so shutting down...")
   end
 
-  defp forward_gossip(i, message, topology, numNodes, neighbour_list) do
+  defp forward_gossip(i, message, topology, numNodes, neighbour_list, nil_count, gossip_pid) do
     next_node = GossipPushSum.Registry.get_next_node(i, topology, numNodes, neighbour_list)
     if (next_node != nil) do
       GossipPushSum.Main.print("Gossip forwarding to pid: #{inspect(next_node)} from #{i}")
       GenServer.cast(next_node, {:gossip, message})
       Process.sleep(100)
-      forward_gossip(i, message, topology, numNodes, neighbour_list)
+      forward_gossip(i, message, topology, numNodes, neighbour_list, 0, gossip_pid)
+    else
+      if (nil_count < 50) do
+        forward_gossip(i, message, topology, numNodes, neighbour_list, nil_count+1, gossip_pid)
+      else
+        IO.inspect("nil_count > 50 for node #{i}")
+        Process.exit(self(), :kill)
+      end
     end
   end
 

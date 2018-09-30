@@ -175,8 +175,19 @@ defmodule GossipPushSum.Registry do
     case topology do
       "full_network" -> get_random_full_network(current_node)
       "line" -> get_random_line(current_node, numNodes)
-      "random_2d" -> Enum.random(neighbour_list) |> GossipPushSum.Registry.get() |> handle_nil()
-      "3d" -> Enum.random(neighbour_list) |> GossipPushSum.Registry.get() |> handle_nil()
+      "random_2d" ->
+        if (Enum.empty?(neighbour_list)) do
+          nil
+        else
+          Enum.random(neighbour_list) |> GossipPushSum.Registry.get() |> handle_nil()
+        end
+
+      "3d" ->
+        if (Enum.empty?(neighbour_list)) do
+          nil
+        else
+          Enum.random(neighbour_list) |> GossipPushSum.Registry.get() |> handle_nil()
+        end
       # "imperfect_line" -> get_random_imperfect_line(current_node)
       # "toroid" -> get_random_toroid(current_node)
       _ -> IO.puts("Error: Invalid topology!")
