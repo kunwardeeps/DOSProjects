@@ -3,34 +3,46 @@ defmodule PushSum.Node do
 
   @impl true
   def init(args) do
-    [_numNodes, i, _s, _w, _warning_count, _topology] = args
+    [_numNodes, i, _s, _w, _warning_count, _topology, _neighbour_list] = args
     GossipPushSum.Main.print("Process id:#{inspect(i)} initiated")
     {:ok, args}
   end
 
   @impl true
-  def handle_cast({:message, s1, w1}, [numNodes, i, s, w, warning_count, topology]) do
+  def handle_cast({:message, s1, w1}, [numNodes, i, s, w, warning_count, topology, neighbour_list]) do
     GossipPushSum.Main.print("Message #{inspect{:message, s1, w1}} received for node: #{i}, state = #{inspect([numNodes, i, s, w, warning_count, topology])}")
-    next_node = GossipPushSum.Registry.get_next_node(i, topology)
     new_s = (s1 + s)/2
     new_w = (w1 + w)/2
     new_warning_count = get_warning_count(s/w, new_s/new_w, warning_count)
-    new_state = [numNodes, i, new_s, new_w, new_warning_count, topology]
-    #GossipPushSum.Main.print("For node: #{i}, state = #{inspect(new_state)}")
-    cond do
-      #Last node case
-      next_node == self() ->
-        GossipPushSum.Registry.remove(i)
-        {:stop, :normal, new_state}
-      #Case if forward can be done
-      (new_warning_count < 3) ->
-        forward_message(i, next_node, new_s, new_w)
-        {:noreply, new_state}
-      #Case when limit is reached
-      true ->
-        forward_message(i, next_node, new_s, new_w)
-        GossipPushSum.Registry.remove(i)
-        {:stop, :normal, new_state}
+    neighbour_list =
+      if (s1 == 0 && w1 == 0) do
+        GossipPushSum.Registry.get_neighbour_list(i, topology, numNodes)
+      else
+        neighbour_list
+      end
+    new_state = [numNodes, i, new_s, new_w, new_warning_count, topology, neighbour_list]
+    if (Enum.empty?(neighbour_list) && (topology == "random_2d" || topology == "3d")) do
+      GossipPushSum.Registry.remove(i)
+      {:stop, :normal, new_state}
+    else
+
+      next_node = GossipPushSum.Registry.get_next_node(i, topology, numNodes, neighbour_list)
+      #GossipPushSum.Main.print("For node: #{i}, state = #{inspect(new_state)}")
+      cond do
+        #Last node case
+        next_node == self() ->
+          GossipPushSum.Registry.remove(i)
+          {:stop, :normal, new_state}
+        #Case if forward can be done
+        (new_warning_count < 3) ->
+          forward_message(i, next_node, new_s, new_w)
+          {:noreply, new_state}
+        #Case when limit is reached
+        true ->
+          forward_message(i, next_node, new_s, new_w)
+          GossipPushSum.Registry.remove(i)
+          {:stop, :normal, new_state}
+      end
     end
   end
 
@@ -43,7 +55,7 @@ defmodule PushSum.Node do
   end
 
   @impl true
-  def terminate(_reason, [_numNodes, i, _s, _w, _warning_count, _topology]) do
+  def terminate(_reason, [_numNodes, i, _s, _w, _warning_count, _topology, _neighbour_list]) do
     GossipPushSum.Main.print("Limit reached for node: #{i} so shutting down...")
   end
 

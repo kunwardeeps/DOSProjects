@@ -11,7 +11,7 @@ defmodule GossipPushSum.Registry do
   def handle_call({:get, id}, _from, processes) do
     case Map.fetch(processes, id) do
       {:ok, value} -> {:reply, value, processes}
-      :error -> {:reply, :error, processes}
+      :error -> {:reply, nil, processes}
     end
   end
 
@@ -28,8 +28,9 @@ defmodule GossipPushSum.Registry do
   @impl true
   def handle_call({:random_value_full, i}, _from, processes) do
     random_key = Map.keys(processes) |> List.delete(i) |> handle_empty_list(i)
+    [_,_,_,pid,_] = Map.get(processes, random_key)
     #IO.puts("i = #{i}, random = #{random_key}")
-    {:reply, Map.get(processes, random_key), processes}
+    {:reply, pid, processes}
   end
 
   @impl true
@@ -41,17 +42,24 @@ defmodule GossipPushSum.Registry do
 
   @impl true
   def handle_call({:random_value_line, i, numNodes}, _from, processes) do
-    cond do
-      i == 0 ->
-        [_,_,_,pid] = Map.get(processes, i+1)
-        {:reply, pid, processes}
-      i == numNodes ->
-        [_,_,_,pid] = Map.get(processes, i-1)
-        {:reply, pid, processes}
-      true ->
-        [_,_,_,pid] = Map.get(processes, i+Enum.random([-1,1]))
-        {:reply, pid, processes}
+    value =
+      cond do
+        i == 1 ->
+          Map.get(processes, i+1)
+        i == numNodes ->
+          Map.get(processes, i-1)
+        true ->
+          Map.get(processes, i+Enum.random([-1,1]))
+
+      end
+
+    if (value == nil) do
+      {:reply, nil, processes}
+    else
+      [_,_,_,pid,_] = value
+      {:reply, pid, processes}
     end
+
   end
 
   @impl true
@@ -65,21 +73,14 @@ defmodule GossipPushSum.Registry do
 
   @impl true
   def handle_call({:random_2d_neighbour_list, current_node}, _from, processes) do
-    [xi,yi,_,_,_] = Map.get(processes, current_node)
-    neighbour_list = []
-    for node <- Map.values(processes) do
-      [x,y,_,pid,_i] = Map.get(processes, node)
-      if get_node_distance(x,y,xi,yi) < 0.1 do
-        neighbour_list ++ pid
-      end
-    end
+    [xi,yi,_,_,_i] = Map.get(processes, current_node)
+    neighbour_list = Enum.filter(Map.values(processes), &filterByDistance(xi, yi, &1))
     {:reply, neighbour_list, processes}
   end
 
   @impl true
   def handle_call({:three_d_neighbour_list, current_node, numNodes}, _from, processes) do
-    [xi,yi,zi,_,_] = Map.get(processes, current_node)
-    neighbour_list = []
+    [xi,yi,zi,_,_i] = Map.get(processes, current_node)
     possible_neighbours = [
       [xi+1,yi,zi],
       [xi-1,yi,zi],
@@ -88,12 +89,14 @@ defmodule GossipPushSum.Registry do
       [xi,yi,zi+1],
       [xi,yi,zi-1]
     ]
-    for possible_neighbour <- possible_neighbours do
-      if is_valid_3d_node(possible_neighbour, numNodes) do
-        neighbour_list ++ get_node_id_from_coordinates(possible_neighbour, numNodes)
-      end
-    end
+    neighbour_list = Enum.map(Enum.filter(possible_neighbours, &is_valid_3d_node(&1, numNodes)), &get_node_id_from_coordinates(&1, numNodes))
+
     {:reply, neighbour_list, processes}
+  end
+
+  def filterByDistance(xi, yi, node) do
+    [x,y,_,_] = node
+    get_node_distance(x,y,xi,yi) < 0.1
   end
 
   def is_valid_3d_node([x,y,z], numNodes) do
@@ -103,6 +106,11 @@ defmodule GossipPushSum.Registry do
     (y > 0 && y <= cube_root) &&
     (z > 0 && z <= cube_root) &&
     node_id > 0 && node_id <= numNodes
+  end
+
+  def get_node_pid_from_coordinates([x,y,z], numNodes, processes) do
+    [_,_,_,pid,_i] = Map.get(processes, get_node_id_from_coordinates([x,y,z], numNodes))
+    pid
   end
 
   def get_node_id_from_coordinates([x,y,z], numNodes) do
@@ -151,7 +159,12 @@ defmodule GossipPushSum.Registry do
   end
 
   def get_random_line(current_node, numNodes) do
-    GenServer.call(ProcRegistry, {:random_value_line, current_node, numNodes})
+    pid = GenServer.call(ProcRegistry, {:random_value_line, current_node, numNodes})
+    if (pid == nil) do
+      get_random_line(current_node, numNodes)
+    else
+      pid
+    end
   end
 
   def get_random_2d(current_node, numNodes) do
@@ -162,11 +175,31 @@ defmodule GossipPushSum.Registry do
     case topology do
       "full_network" -> get_random_full_network(current_node)
       "line" -> get_random_line(current_node, numNodes)
-      "random_2d" -> Enum.random(neighbour_list)
-      # "3d" -> get_random_3d(current_node)
+      "random_2d" -> Enum.random(neighbour_list) |> GossipPushSum.Registry.get() |> handle_nil()
+      "3d" -> Enum.random(neighbour_list) |> GossipPushSum.Registry.get() |> handle_nil()
       # "imperfect_line" -> get_random_imperfect_line(current_node)
       # "toroid" -> get_random_toroid(current_node)
       _ -> IO.puts("Error: Invalid topology!")
+    end
+  end
+
+  def handle_nil(node) do
+    if (node == nil)do
+      nil
+    else
+      [_,_,_,pid,_] = node
+      pid
+    end
+  end
+
+  def register_process(i, topology, numNodes, pid) do
+    case topology do
+      "full_network" -> GossipPushSum.Registry.put(i, [i,0,0,pid,i])
+      "line" -> GossipPushSum.Registry.put(i, [i,0,0,pid,i])
+      "random_2d" -> GossipPushSum.Registry.put(i, [:rand.uniform(numNodes)/numNodes, :rand.uniform(numNodes)/numNodes, 0, pid, i])
+      "3d" -> GossipPushSum.Registry.register_process_3d(i, numNodes, pid)
+      #"imperfect_line" -> register_process_imperfect_line
+      #"toroid" -> register_process_toroid
     end
   end
 
@@ -203,6 +236,7 @@ defmodule GossipPushSum.Registry do
     case topology do
       "random_2d" -> get_random_2d_neighbour_list(current_node)
       "3d" -> get_3d_neighbour_list(current_node, numNodes)
+      _ -> []
     end
   end
 

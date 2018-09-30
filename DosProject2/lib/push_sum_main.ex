@@ -26,16 +26,15 @@ defmodule PushSumMain do
   end
 
   def start(numNodes) do
-    first_node_id = :rand.uniform(numNodes)
-    first_node_pid = GossipPushSum.Registry.get(first_node_id)
-    GossipPushSum.Main.print("PushSum starting from #{first_node_id}, pid #{inspect(first_node_pid)}")
+    [_,_,_,first_node_pid,_] = GossipPushSum.Registry.get(:rand.uniform(numNodes))
+    GossipPushSum.Main.print("PushSum starting from pid #{inspect(first_node_pid)}")
     GenServer.cast(first_node_pid, {:message, 0, 0})
   end
 
   def init_nodes(numNodes, i, topology) do
     if (i <= numNodes) do
-      {:ok, pid} = GenServer.start_link(PushSum.Node, [numNodes, i, i, 1, 0, topology])
-      GossipPushSum.Registry.put(i, pid)
+      {:ok, pid} = GenServer.start_link(PushSum.Node, [numNodes, i, i, 1, 0, topology, []])
+      GossipPushSum.Registry.register_process(i, topology, numNodes, pid)
       Process.monitor(pid)
       init_nodes(numNodes, i+1, topology)
     end

@@ -14,10 +14,15 @@ defmodule Gossip.Node do
     cond do
       count == 0 ->
         GossipPushSum.Main.print("First gossip received for node: #{i}, current count = #{count+1}")
-        neighbour_list = GossipPushSum.Registry.get_neighbour_list(i)
-        gossip_pid = spawn fn -> forward_gossip(i, message, topology, numNodes, neighbour_list) end
-
-        {:noreply, [i, numNodes, count+1, topology, gossip_pid]}
+        neighbour_list = GossipPushSum.Registry.get_neighbour_list(i, topology, numNodes)
+        if (Enum.empty?(neighbour_list) && (topology == "random_2d" || topology == "3d")) do
+          GossipPushSum.Main.print("No neighbours for #{i}")
+          GossipPushSum.Registry.remove(i)
+          {:stop, :normal, [i, numNodes, count+1, topology, gossip_pid]}
+        else
+          gossip_pid = spawn fn -> forward_gossip(i, message, topology, numNodes, neighbour_list) end
+          {:noreply, [i, numNodes, count+1, topology, gossip_pid]}
+        end
       (count+1 >= @maxGossips) ->
         GossipPushSum.Main.print("Gossip received for node: #{i}, current count = #{count+1}")
         GossipPushSum.Registry.remove(i)
@@ -39,6 +44,7 @@ defmodule Gossip.Node do
     if (next_node != nil) do
       GossipPushSum.Main.print("Gossip forwarding to pid: #{inspect(next_node)} from #{i}")
       GenServer.cast(next_node, {:gossip, message})
+      Process.sleep(100)
       forward_gossip(i, message, topology, numNodes, neighbour_list)
     end
   end

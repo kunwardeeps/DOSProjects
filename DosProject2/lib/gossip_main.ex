@@ -26,7 +26,7 @@ defmodule GossipMain do
   end
 
   def start(numNodes) do
-    first_node = GossipPushSum.Registry.get(:rand.uniform(numNodes))
+    [_,_,_,first_node,_] = GossipPushSum.Registry.get(:rand.uniform(numNodes))
     GossipPushSum.Main.print("Gossip starting from #{inspect(first_node)}")
     GenServer.cast(first_node, {:gossip, "Java sucks"})
   end
@@ -35,27 +35,10 @@ defmodule GossipMain do
     if (i <= numNodes) do
       {:ok, pid} = GenServer.start_link(Gossip.Node, [i, numNodes, 0, topology, self()])
 
-      IO.puts(topology)
-
-      register_process(i, topology, numNodes, pid)
+      GossipPushSum.Registry.register_process(i, topology, numNodes, pid)
 
       Process.monitor(pid)
       init_nodes(numNodes, i+1, topology)
     end
   end
-
-  def register_process(i, topology, numNodes, pid) do
-    case topology do
-      "full_network" -> GossipPushSum.Registry.put(i, [i,0,0,pid])
-      "line" -> GossipPushSum.Registry.put(i, [i,0,0,pid])
-      "random_2d" -> GossipPushSum.Registry.put(i, [:rand.uniform(numNodes)/numNodes, :rand.uniform(numNodes)/numNodes, 0, pid, i])
-      "3d" -> GossipPushSum.Registry.register_process_3d(i, numNodes, pid)
-      #"imperfect_line" -> register_process_imperfect_line
-      #"sphere" -> register_process_toroid
-    end
-    GossipPushSum.Registry.put(i, pid)
-  end
-
-
-
 end
