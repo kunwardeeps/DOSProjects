@@ -50,3 +50,29 @@ dos_project-*.tar
 
 /DosProject2/.elixir_ls
 
+# The directory Mix will write compiled artifacts to.
+/dos_project2_bonus/_build/
+
+# If you run "mix test --cover", coverage assets end up here.
+/dos_project2_bonus/cover/
+
+# The directory Mix downloads your dependencies sources to.
+/dos_project2_bonus/deps/
+
+# Where 3rd-party dependencies like ExDoc output generated docs.
+/dos_project2_bonus/doc/
+
+# Ignore .fetch files in case you like to edit your project deps locally.
+/dos_project2_bonus/.fetch
+
+# If the VM crashes, it generates a dump, let's ignore it too.
+/dos_project2_bonus/erl_crash.dump
+
+# Also ignore archive artifacts (built via "mix archive.build").
+*.ez
+
+# Ignore package tarball (built via "mix hex.build").
+dos_project-*.tar
+
+/dos_project2_bonus/.elixir_ls
+
