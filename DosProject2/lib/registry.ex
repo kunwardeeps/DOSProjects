@@ -121,9 +121,10 @@ defmodule GossipPushSum.Registry do
 
   @impl true
   def handle_call({:random_2d_neighbour_list, current_node}, _from, processes) do
-    [xi,yi,_,_,_i] = Map.get(processes, current_node)
-    neighbour_list = Enum.filter(Map.values(processes), &filterByDistance(xi, yi, &1))
-    {:reply, neighbour_list, processes}
+    value = Map.get(processes, current_node)
+    [xi,yi,_,_,_i] = value
+    neighbour_list = Enum.map(Enum.filter(Map.values(processes), &filterByDistance(xi, yi, &1)), &get_node_id_2d(&1))
+    {:reply, neighbour_list -- [current_node], processes}
   end
 
   @impl true
@@ -229,6 +230,11 @@ defmodule GossipPushSum.Registry do
 
   end
 
+  def get_node_id_2d(node) do
+    [_,_,_,_,i] = node
+    i
+  end
+
   def get_num_list(i, numNodes) do
     numList =
       cond do
@@ -298,7 +304,7 @@ defmodule GossipPushSum.Registry do
     (cube_root_sq * (z-1) + cube_root * (y-1) + x)
   end
 
-  def get_node_distance(x1, x2, y1, y2) do
+  def get_node_distance(x1, y1, x2, y2) do
     :math.sqrt(:math.pow(x1 - x2, 2) + :math.pow(y1 - y2, 2))
   end
 
@@ -381,11 +387,16 @@ defmodule GossipPushSum.Registry do
     case topology do
       "full_network" -> put(i, [i,0,0,pid,i])
       "line" -> put(i, [i,0,0,pid,i])
-      "random_2d" -> put(i, [:rand.uniform(numNodes)/numNodes, :rand.uniform(numNodes)/numNodes, 0, pid, i])
+      "random_2d" -> register_random_2d(i, numNodes, pid)
       "3d" -> register_process_3d(i, numNodes, pid)
       "imperfect_line" -> register_imperfect_line(i, numNodes, pid)
       "toroid" -> register_process_toroid(i, numNodes, pid)
     end
+  end
+
+  def register_random_2d(i, numNodes, pid) do
+    sqrt = get_square_root_ceiling(numNodes)
+    put(i, [:rand.uniform(sqrt)/(numNodes), :rand.uniform(sqrt)/(numNodes), 0, pid, i])
   end
 
   def register_imperfect_line(i, numNodes, pid) do
