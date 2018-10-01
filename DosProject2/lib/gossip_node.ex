@@ -15,7 +15,7 @@ defmodule Gossip.Node do
       count == 0 ->
         GossipPushSum.Main.print("First gossip received for node: #{i}, current count = #{count+1}")
         neighbour_list = GossipPushSum.Registry.get_neighbour_list(i, topology, numNodes)
-        if (Enum.empty?(neighbour_list) && (topology == "random_2d" || topology == "3d")) do
+        if (Enum.empty?(neighbour_list) && (topology == "random_2d" || topology == "3d" || topology == "toroid")) do
           GossipPushSum.Main.print("No neighbours for #{i}")
           GossipPushSum.Registry.remove(i)
           {:stop, :normal, [i, numNodes, count+1, topology, gossip_pid]}
