@@ -33,7 +33,7 @@ defmodule PushSumMain do
 
   def init_nodes(numNodes, i, topology) do
     if (i <= numNodes) do
-      {:ok, pid} = GenServer.start_link(PushSum.Node, [numNodes, i, i, 1, 0, topology, []])
+      {:ok, pid} = GenServer.start_link(PushSum.Node, [numNodes, i, i, 1, 0, topology, nil])
       GossipPushSum.Registry.register_process(i, topology, numNodes, pid)
       Process.monitor(pid)
       init_nodes(numNodes, i+1, topology)

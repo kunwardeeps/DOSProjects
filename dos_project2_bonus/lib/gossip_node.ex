@@ -36,6 +36,16 @@ defmodule Gossip.Node do
   end
 
   @impl true
+  def handle_cast({:shutdown}, [i, numNodes, count, topology, gossip_pid]) do
+    if (gossip_pid != nil) do
+      IO.puts("Exiting gossip_pid #{inspect(gossip_pid)}")
+      Process.exit(gossip_pid, :kill)
+    end
+    GossipPushSum.Registry.remove(i)
+    {:stop, :normal, [i, numNodes, count+1, topology, gossip_pid]}
+  end
+
+  @impl true
   def handle_info({:DOWN, _ref, :process, _pid, _reason}, [i, numNodes, count, topology, gossip_pid]) do
     GossipPushSum.Registry.remove(i)
     Process.exit(gossip_pid, :kill)

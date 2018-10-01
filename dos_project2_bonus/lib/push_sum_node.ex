@@ -3,7 +3,7 @@ defmodule PushSum.Node do
 
   @impl true
   def init(args) do
-    [_numNodes, i, _s, _w, _warning_count, _topology, _neighbour_list] = args
+    [_numNodes, i, _s, _w, _warning_count, _topology, _pushsum_pid] = args
     GossipPushSum.Main.print("Process id:#{inspect(i)}, #{inspect(self())} initiated")
     {:ok, args}
   end
@@ -17,6 +17,16 @@ defmodule PushSum.Node do
   def handle_cast({:save_state, s1, w1}, [numNodes, i, s, w, warning_count, topology, pushsum_pid]) do
     new_warning_count = get_warning_count(s/w, s1/w1, warning_count)
     {:noreply, [numNodes, i, s1, w1, new_warning_count, topology, pushsum_pid]}
+  end
+
+  @impl true
+  def handle_cast({:shutdown}, [numNodes, i, s, w, warning_count, topology, pushsum_pid]) do
+    if (pushsum_pid != nil) do
+      GossipPushSum.Main.print("Exiting pid #{inspect(pushsum_pid)}")
+      Process.exit(pushsum_pid, :kill)
+    end
+    GossipPushSum.Registry.remove(i)
+    {:stop, :normal, [numNodes, i, s, w, warning_count, topology, pushsum_pid]}
   end
 
   @impl true
@@ -53,7 +63,9 @@ defmodule PushSum.Node do
   @impl true
   def handle_info({:DOWN, _ref, :process, _pid, _reason}, [numNodes, i, s, w, warning_count, topology, pushsum_pid]) do
     GossipPushSum.Registry.remove(i)
-    Process.exit(pushsum_pid, :kill)
+    if (pushsum_pid != nil) do
+      Process.exit(pushsum_pid, :kill)
+    end
     {:stop, :normal, [numNodes, i, s, w, warning_count, topology, pushsum_pid]}
   end
 

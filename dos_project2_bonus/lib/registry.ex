@@ -391,6 +391,7 @@ defmodule GossipPushSum.Registry do
       "3d" -> register_process_3d(i, numNodes, pid)
       "imperfect_line" -> register_imperfect_line(i, numNodes, pid)
       "toroid" -> register_process_toroid(i, numNodes, pid)
+      _ -> IO.puts("Error: Invalid topology!")
     end
   end
 
