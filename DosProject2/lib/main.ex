@@ -24,7 +24,7 @@ defmodule GossipPushSum.Main do
     receive do
       {:converge, msg} -> print(msg)
     after
-      100_000 -> print("Couldn't converge even after 20s!")
+      20_000 -> print("Couldn't converge even after 20s!")
     end
 
   end
@@ -32,7 +32,7 @@ defmodule GossipPushSum.Main do
   def start_algo_main(module, numNodes, i, start_nodes, topology) do
     if (i <= start_nodes) do
       {:ok, pid} = GenServer.start_link(module, [numNodes, 0, self(), topology])
-      GenServer.call(pid, {})
+      GenServer.call(pid, {}, 100000)
       start_algo_main(module, numNodes, i+1, start_nodes, topology)
     end
   end
