@@ -5,7 +5,7 @@ defmodule GossipPushSum.Main do
 
   @input_gossip "gossip"
   @input_push_sum "push_sum"
-  @debug true
+  @debug false
 
   @doc """
   Entry point

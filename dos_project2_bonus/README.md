@@ -1,21 +1,30 @@
-# GossipPushSumBonus
+# COT5615: Distributed Operating Systems
+Gossip Simulator Bonus Requirement
 
-**TODO: Add description**
+## Team Members
+1. Gayatri Behera UFID 3258-9909
+2. Kunwardeep Singh UFID 2421-3955
 
-## Installation
+## Running the program: 
+To start the program in Unix environment, use:
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `dos_project2_bonus` to your list of dependencies in `mix.exs`:
+time mix run proj2.exs [num_of_Nodes] [topology] [algorithm] [Initiator_nodes] [nodes_to_kill]
 
-```elixir
-def deps do
-  [
-    {:dos_project2_bonus, "~> 0.1.0"}
-  ]
-end
-```
+Algorithm parameter types:
+Gossip: gossip
+Push Sum: push_sum
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/dos_project2_bonus](https://hexdocs.pm/dos_project2_bonus).
+Topology parameter types:
+Full Network: full_network
+Line: line
+Random 2D Grid: random_2d
+3D Grid: 3d
+Imperfect Line: imperfect_line
+Toroid/Sphere: toroid
 
+Sample output:
+real    0m3.510s
+user    0m1.124s
+sys     0m0.212s
+
+The real time shows the time taken to converge, whereas user+sys is the CPU time.
