@@ -58,7 +58,7 @@ defmodule Gossip.Node do
       if (nil_count < 50) do
         forward_gossip(i, message, topology, numNodes, neighbour_list, nil_count+1, gossip_pid)
       else
-        IO.inspect("nil_count > 50 for node #{i}")
+        GossipPushSum.Main.print("nil_count > 50 for node #{i}")
         Process.exit(self(), :kill)
       end
     end

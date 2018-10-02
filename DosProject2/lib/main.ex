@@ -10,7 +10,7 @@ defmodule GossipPushSum.Main do
   @doc """
   Entry point
   """
-  def start(numNodes, topology \\ "a", algorithm \\ "gossip", start_nodes \\ 1) do
+  def start(numNodes, topology \\ "full_network", algorithm \\ "gossip", start_nodes \\ 1) do
     init_registry()
     print("Registry intialized!")
     case algorithm do
@@ -22,9 +22,9 @@ defmodule GossipPushSum.Main do
 
   def wait_for_convergence() do
     receive do
-      {:converge, msg} -> IO.puts(msg)
+      {:converge, msg} -> print(msg)
     after
-      20_000 -> IO.puts("Couldn't converge even after 10s!")
+      100_000 -> print("Couldn't converge even after 20s!")
     end
 
   end

@@ -149,8 +149,8 @@ defmodule GossipPushSum.Registry do
 
     #IO.inspect GossipPushSum.Registry.get_all()
 
-    IO.inspect xi, label: "xi"
-    IO.inspect yi, label: "yi"
+    # IO.inspect xi, label: "xi"
+    # IO.inspect yi, label: "yi"
 
     square_root = numNodes |> :math.pow(1/2) |> :math.ceil |> :erlang.trunc
 
@@ -223,9 +223,9 @@ defmodule GossipPushSum.Registry do
 
     end
 
-    IO.inspect possible_neighbours, label: "possible_neighbours"
+    # IO.inspect possible_neighbours, label: "possible_neighbours"
     neighbour_list = Enum.map(possible_neighbours, &get_node_id_toroid_from_coordinates(&1, numNodes))
-    IO.inspect neighbour_list, label: "neighbour_list ->"
+    # IO.inspect neighbour_list, label: "neighbour_list ->"
     {:reply, neighbour_list, processes}
 
   end
@@ -266,8 +266,8 @@ defmodule GossipPushSum.Registry do
           rem_x
         end
 
-    IO.inspect x, label: "x"
-    IO.inspect y, label: "y"
+    # IO.inspect x, label: "x"
+    # IO.inspect y, label: "y"
     GossipPushSum.Registry.put(i, [x, y, 0, pid, i])
   end
 

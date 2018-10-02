@@ -1,21 +1,12 @@
-# GossipPushSumImpl
+# COT5615: Distributed Operating Systems
+Gossip Simulator
 
-**TODO: Add description**
+## Team Members
+1. Gayatri Behera UFID 3258-9909
+2. Kunwardeep Singh UFID 2421-3955
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `dos_project2` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:dos_project2, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/dos_project2](https://hexdocs.pm/dos_project2).
+## What is working
+- Both algorithms and all topologies are working under given conditions mentioned in next section.
+- Sometimes convergence 
+- Gossip algorithm is working more robustly while push sum sometimes reaches deadlock
 

@@ -85,7 +85,7 @@ defmodule PushSum.Node do
       if (nil_count < 50) do
         forward_message(i, numNodes, topology, neighbour_list, node_pid, nil_count+1)
       else
-        IO.inspect("nil_count > 50 for node #{i}")
+        GossipPushSum.Main.print("nil_count > 50 for node #{i}")
         Process.exit(self(), :kill)
       end
     end
