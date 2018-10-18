@@ -16,6 +16,32 @@ defmodule Chord.Registry do
   end
 
   @impl true
+  def handle_call({:successor, key}, _from, processes) do
+    keys = Map.keys(processes) |> Enum.sort() |> Enum.with_index
+
+    result = {:reply, nil, processes}
+    for {item, idx} <- keys do
+      if (item == key) do
+        if (idx == length(keys) - 1) do
+          {next_item, _} = Enum.at(keys,0)
+          case Map.fetch(processes, next_item) do
+            {:ok, value} -> result = {:reply, value, processes}
+            :error -> result = {:reply, nil, processes}
+          end
+        else
+          {next_item, _} = Enum.at(keys,idx+1)
+          IO.puts("hello")
+          case Map.fetch(processes, next_item) do
+            {:ok, value} -> result = {:reply, value, processes}
+            :error -> result = {:reply, nil, processes}
+          end
+        end
+      end
+    end
+    result
+  end
+
+  @impl true
   def handle_call({:remove, id}, _from, processes) do
     {:reply, :ok, Map.delete(processes, id)}
   end
@@ -53,6 +79,14 @@ defmodule Chord.Registry do
 
   def remove(key) do
     GenServer.call(ProcRegistry, {:remove, key})
+  end
+
+  def get_successor(key) do
+    GenServer.call(ProcRegistry, {:successor, key})
+  end
+
+  def get_predecessor(key) do
+    GenServer.call(ProcRegistry, {:predecessor, key})
   end
 
 end
