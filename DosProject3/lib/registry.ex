@@ -17,28 +17,32 @@ defmodule Chord.Registry do
 
   @impl true
   def handle_call({:successor, key}, _from, processes) do
-    keys = Map.keys(processes) |> Enum.sort() |> Enum.with_index
+    keys = Map.keys(processes) |> Enum.sort()
+    keys_with_idx = keys |> Enum.with_index
 
-    result = {:reply, nil, processes}
-    for {item, idx} <- keys do
-      if (item == key) do
-        if (idx == length(keys) - 1) do
-          {next_item, _} = Enum.at(keys,0)
-          case Map.fetch(processes, next_item) do
-            {:ok, value} -> result = {:reply, value, processes}
-            :error -> result = {:reply, nil, processes}
-          end
-        else
-          {next_item, _} = Enum.at(keys,idx+1)
-          IO.puts("hello")
-          case Map.fetch(processes, next_item) do
-            {:ok, value} -> result = {:reply, value, processes}
-            :error -> result = {:reply, nil, processes}
-          end
-        end
+    if !Map.has_key?(processes, key) do
+      {:reply, nil, processes}
+    else
+      case get_successor_loop(processes, keys_with_idx, key, keys) do
+        {:ok, value} -> {:reply, value, processes}
+        :error -> {:reply, nil, processes}
       end
     end
-    result
+  end
+
+  @impl true
+  def handle_call({:predecessor, key}, _from, processes) do
+    keys = Map.keys(processes) |> Enum.sort()
+    keys_with_idx = keys |> Enum.with_index
+
+    if !Map.has_key?(processes, key) do
+      {:reply, nil, processes}
+    else
+      case get_predecessor_loop(processes, keys_with_idx, key, keys) do
+        {:ok, value} -> {:reply, value, processes}
+        :error -> {:reply, nil, processes}
+      end
+    end
   end
 
   @impl true
@@ -57,6 +61,34 @@ defmodule Chord.Registry do
       {:reply, :already_present, processes}
     else
       {:reply, :ok, Map.put(processes, id, pid)}
+    end
+  end
+
+  def get_successor_loop(processes, [head|tail], key, keys) do
+    {item, idx} = head
+    cond do
+      item == key ->
+        if Enum.empty?(tail) do
+          Map.fetch(processes, Enum.at(keys,0))
+        else
+          Map.fetch(processes, Enum.at(keys,idx+1))
+        end
+      true ->
+        get_successor_loop(processes, tail, key, keys)
+    end
+  end
+
+  def get_predecessor_loop(processes, [head|tail], key, keys) do
+    {item, idx} = head
+    cond do
+      item == key ->
+        if idx == 0 do
+          Map.fetch(processes, Enum.at(keys,length(keys)-1))
+        else
+          Map.fetch(processes, Enum.at(keys,idx-1))
+        end
+      true ->
+        get_predecessor_loop(processes, tail, key, keys)
     end
   end
 
