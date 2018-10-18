@@ -76,3 +76,20 @@ dos_project-*.tar
 
 /dos_project2_bonus/.elixir_ls
 
+# The directory Mix will write compiled artifacts to.
+/DosProject3/_build/
+
+# If you run "mix test --cover", coverage assets end up here.
+/DosProject3/cover/
+
+# The directory Mix downloads your dependencies sources to.
+/DosProject3/deps/
+
+# Where 3rd-party dependencies like ExDoc output generated docs.
+/DosProject3/doc/
+
+# Ignore .fetch files in case you like to edit your project deps locally.
+/DosProject3/.fetch
+
+# If the VM crashes, it generates a dump, let's ignore it too.
+/DosProject3/erl_crash.dump
