@@ -93,3 +93,5 @@ dos_project-*.tar
 
 # If the VM crashes, it generates a dump, let's ignore it too.
 /DosProject3/erl_crash.dump
+
+/DosProject3/.elixir_ls
