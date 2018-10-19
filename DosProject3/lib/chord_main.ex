@@ -30,16 +30,21 @@ defmodule Chord.Ring.Main do
   end
 
   def init_node_states() do
-
+    nodes = Chord.Registry.get_all_values()
+    Enum.each nodes, fn [pid, _node_name, node_key] ->
+      GenServer.call(pid, {:update_state, Chord.Registry.get_predecessor(node_key),
+        Chord.Registry.get_successor(node_key),
+        Chord.Registry.get_finger_table(node_key, @m)})
+    end
   end
 
   def init_nodes(num_nodes, num_requests, i) do
     if (i <= num_nodes) do
       node_name = "node"<>Integer.to_string(i)
       node_key = Chord.HashModule.get_node_id(node_name, @m)
-      {:ok, pid} = GenServer.start_link(Chord.Node, [node_key, node_name, %{}, 0, 0, nil, nil])
+      {:ok, pid} = GenServer.start_link(Chord.Node, [node_key, node_name, num_requests, %{}, 0, 0, nil, nil])
 
-      Chord.Registry.put(node_key, [pid, node_name])
+      Chord.Registry.put(node_key, [pid, node_name, node_key])
 
       Process.monitor(pid)
       init_nodes(num_nodes, num_requests, i+1)
