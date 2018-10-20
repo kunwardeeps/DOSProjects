@@ -8,6 +8,11 @@ defmodule Chord.Registry do
   end
 
   @impl true
+  def handle_call({:exists, key}, _from, processes) do
+    {:reply, Map.has_key?(processes, key), processes}
+  end
+
+  @impl true
   def handle_call({:get, id}, _from, processes) do
     case Map.fetch(processes, id) do
       {:ok, value} -> {:reply, value, processes}
@@ -54,8 +59,8 @@ defmodule Chord.Registry do
 
     finger_values = Enum.map(finger_keys, &get_first_greater_node(keys, &1, first_key))
 
-    finger_table = Enum.zip(finger_keys, finger_values) |> Enum.into(%{})
-    {:reply, finger_table, processes}
+    #finger_table = Enum.zip(finger_keys, finger_values) |> Enum.into(%{})
+    {:reply, finger_values, processes}
   end
 
   @impl true
@@ -126,6 +131,10 @@ defmodule Chord.Registry do
   #API
   def start_link() do
     GenServer.start_link(__MODULE__, %{}, name: ProcRegistry)
+  end
+
+  def exists?(key) do
+    GenServer.call(ProcRegistry, {:exists, key})
   end
 
   def put(key, value) do

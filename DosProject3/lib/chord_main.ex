@@ -1,7 +1,7 @@
 defmodule Chord.Ring.Main do
   use GenServer
 
-  @m 16
+  @m 8
 
   @impl true
   def init(args) do
@@ -13,6 +13,7 @@ defmodule Chord.Ring.Main do
   def handle_call(_request, _from, [num_nodes, num_requests, exit_count, main_pid]) do
     init_nodes(num_nodes, num_requests, 1)
     init_node_states()
+    send_random_nodes(Chord.Registry.get_all_values())
     {:reply, [], [num_nodes, num_requests, exit_count, main_pid]}
   end
 
@@ -29,6 +30,14 @@ defmodule Chord.Ring.Main do
     end
   end
 
+  def send_random_nodes([]) do end
+
+  def send_random_nodes([head|tail]) do
+    [pid, _node_name, _node_key] = head
+    GenServer.cast(pid, {:send_random, @m})
+    send_random_nodes(tail)
+  end
+
   def init_node_states() do
     nodes = Chord.Registry.get_all_values()
     Enum.each nodes, fn [pid, _node_name, node_key] ->
@@ -40,9 +49,9 @@ defmodule Chord.Ring.Main do
 
   def init_nodes(num_nodes, num_requests, i) do
     if (i <= num_nodes) do
-      node_name = "node"<>Integer.to_string(i)
-      node_key = Chord.HashModule.get_node_id(node_name, @m)
-      {:ok, pid} = GenServer.start_link(Chord.Node, [node_key, node_name, num_requests, %{}, 0, 0, nil, nil])
+
+      {node_name, node_key} = get_node_key(i)
+      {:ok, pid} = GenServer.start_link(Chord.Node, [node_key, node_name, num_requests, num_nodes, [], 0, 0, nil, nil])
 
       Chord.Registry.put(node_key, [pid, node_name, node_key])
 
@@ -51,4 +60,13 @@ defmodule Chord.Ring.Main do
     end
   end
 
+  def get_node_key(i) do
+    node_name = Chord.HashModule.generate_random_string(5)<>"_"<>Integer.to_string(i)
+    node_key = Chord.HashModule.get_node_id(node_name, @m)
+    if (Chord.Registry.exists?(node_key)) do
+      get_node_key(i)
+    else
+      {node_name, node_key}
+    end
+  end
 end
