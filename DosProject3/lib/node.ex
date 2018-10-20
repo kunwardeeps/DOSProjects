@@ -3,57 +3,66 @@ defmodule Chord.Node do
 
   @impl true
   def init(args) do
-    [node_key, node_name, num_requests, num_nodes, _finger_table, _num_hops, _request_counter, _predecessor, _successor] = args
+    [node_key, node_name, num_requests, num_nodes, _finger_table, _num_hops, _predecessor, _successor] = args
     Chord.Main.print("Node: #{inspect(node_key)} (name: #{inspect(node_name)}, pid: #{inspect(self())}) initiated!")
     {:ok, args}
   end
 
   @impl true
-  def handle_call({:update_state, predecessor, successor, finger_table}, _from, [node_key, node_name, num_requests, num_nodes, _finger_table, num_hops, request_counter, _predecessor, _successor]) do
-    Chord.Main.print("Updated state for Node: #{node_key}, state:#{inspect([node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor])}")
-    {:reply, :ok, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor]}
+  def handle_call({:update_state, predecessor, successor, finger_table}, _from, [node_key, node_name, num_requests, num_nodes, _finger_table, num_hops, _predecessor, _successor]) do
+    Chord.Main.print("Updated state for Node: #{node_key}, state:#{inspect([node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor])}")
+    {:reply, :ok, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]}
   end
 
   @impl true
-  def handle_cast({:trigger}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor]) do
+  def handle_cast({:trigger}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]) do
     #TODO call stabilize and fix_fingers
   end
 
   @impl true
-  def handle_cast({:forward, destination_key, current_hop_count}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor]) do
+  def handle_cast({:forward, destination_key, current_hop_count}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]) do
 
-    Chord.Main.print("Received message in #{node_key} with state #{inspect([node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor])}, final destination: #{destination_key}")
+    Chord.Main.print("Received message in #{node_key} with state #{inspect([node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor])}, final destination: #{destination_key}")
     [_,_, pred_node] = predecessor
     if (destination_bet_current_predecessor(node_key, pred_node, destination_key)) do
       Chord.Main.print("Saving hops as #{num_hops+current_hop_count} in #{node_key}")
-      {:noreply, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops+current_hop_count, request_counter, predecessor, successor]}
+      {:noreply, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops+current_hop_count, predecessor, successor]}
     else
       forward_message(finger_table, destination_key, node_key, current_hop_count+1)
-      {:noreply, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor]}
+      {:noreply, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]}
     end
   end
 
   @impl true
-  def handle_cast({:send_random, m}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor]) do
-    pid = spawn fn -> send_messages(finger_table, node_key, num_requests, m, 0) end
+  def handle_cast({:send_random, m}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]) do
+    pid = spawn fn -> send_messages(finger_table, node_key, num_requests, num_nodes, m, 0) end
     Process.monitor(pid)
-    {:noreply, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor]}
+    {:noreply, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]}
   end
 
   @impl true
-  def handle_info({:DOWN, _ref, :process, _pid, _reason}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor]) do
+  def handle_info({:DOWN, _ref, :process, _pid, _reason}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]) do
     Chord.Registry.remove(node_key)
-    {:stop, :normal, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, request_counter, predecessor, successor]}
+    update_hops(num_hops)
+    {:stop, :normal, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]}
   end
 
-  def send_messages(finger_table, node_key, num_requests, m, i) do
+  def update_hops(num_hops) do
+    GenServer.call(ChordMain, {:update_hops, num_hops}, 1000000)
+  end
+
+  def notify_completion() do
+    GenServer.call(ChordMain, {:update_exit_count})
+  end
+
+  def send_messages(finger_table, node_key, num_requests, num_nodes, m, i) do
     if (i< num_requests) do
       random_key = :rand.uniform(trunc(:math.pow(2, m)))
       Chord.Main.print("Sending message to #{random_key} from #{node_key}, finger table: #{inspect(finger_table)}")
       forward_message(finger_table, random_key, node_key, 1)
-      send_messages(finger_table, node_key, num_requests, m, i+1)
+      send_messages(finger_table, node_key, num_requests, num_nodes, m, i+1)
     else
-      Process.sleep(200)
+      Process.sleep(num_requests * num_nodes + 10000)
       Process.exit(self(), :kill)
     end
   end

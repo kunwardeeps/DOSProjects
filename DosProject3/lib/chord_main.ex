@@ -1,7 +1,7 @@
 defmodule Chord.Ring.Main do
   use GenServer
 
-  @m 8
+  @m 16
 
   @impl true
   def init(args) do
@@ -10,23 +10,30 @@ defmodule Chord.Ring.Main do
   end
 
   @impl true
-  def handle_call(_request, _from, [num_nodes, num_requests, exit_count, main_pid]) do
-    init_nodes(num_nodes, num_requests, 1)
-    init_node_states()
-    send_random_nodes(Chord.Registry.get_all_values())
-    {:reply, [], [num_nodes, num_requests, exit_count, main_pid]}
+  def handle_call({:update_hops, hops}, _from, [num_nodes, num_requests, exit_count, main_pid, total_hops]) do
+    Chord.Main.print("Updating hops count to #{total_hops+hops}")
+    {:reply, :ok, [num_nodes, num_requests, exit_count, main_pid, total_hops+hops]}
   end
 
   @impl true
-  def handle_info({:DOWN, _ref, :process, pid, _reason}, [num_nodes, num_requests, exit_count, main_pid]) do
+  def handle_call(_request, _from, [num_nodes, num_requests, exit_count, main_pid, total_hops]) do
+    init_nodes(num_nodes, num_requests, 1)
+    init_node_states()
+    send_random_nodes(Chord.Registry.get_all_values())
+    {:reply, [], [num_nodes, num_requests, exit_count, main_pid, total_hops]}
+  end
+
+  @impl true
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, [num_nodes, num_requests, exit_count, main_pid, total_hops]) do
     Chord.Main.print("Exit count: #{inspect(exit_count)}")
+    Chord.Main.print "Node #{inspect(pid)} down, exit count: #{exit_count+1}!"
     if (exit_count+1 < num_nodes) do
-      Chord.Main.print "Node #{inspect(pid)} down, exit count: #{exit_count+1}!"
-      {:noreply, [num_nodes, num_requests, exit_count+1, main_pid]}
+
+      {:noreply, [num_nodes, num_requests, exit_count+1, main_pid, total_hops]}
     else
       Chord.Main.print("exit count: #{exit_count+1}, so exiting...")
-      send(main_pid, {:converge, "All Nodes exited!"})
-      {:noreply, [num_nodes, num_requests, exit_count+1, main_pid]}
+      send(main_pid, {:converge, total_hops})
+      {:noreply, [num_nodes, num_requests, exit_count+1, main_pid, total_hops]}
     end
   end
 
@@ -51,7 +58,7 @@ defmodule Chord.Ring.Main do
     if (i <= num_nodes) do
 
       {node_name, node_key} = get_node_key(i)
-      {:ok, pid} = GenServer.start_link(Chord.Node, [node_key, node_name, num_requests, num_nodes, [], 0, 0, nil, nil])
+      {:ok, pid} = GenServer.start_link(Chord.Node, [node_key, node_name, num_requests, num_nodes, [], 0, nil, nil])
 
       Chord.Registry.put(node_key, [pid, node_name, node_key])
 

@@ -8,19 +8,19 @@ defmodule Chord.Main do
     init_registry()
     print("Registry intialized!")
     start_ring(num_nodes, num_requests)
-    wait_for_exit()
+    wait_for_exit(num_nodes, num_requests)
   end
 
   def start_ring(num_nodes, num_requests) do
-    {:ok, pid} = GenServer.start_link(Chord.Ring.Main, [num_nodes, num_requests, 0, self()])
+    {:ok, pid} = GenServer.start_link(Chord.Ring.Main, [num_nodes, num_requests, 0, self(), 0], name: ChordMain)
     GenServer.call(pid, {}, 100000)
   end
 
-  def wait_for_exit() do
+  def wait_for_exit(num_nodes, num_requests) do
     receive do
-      {:converge, msg} -> print(msg)
+      {:converge, hops} -> print("Average hops = #{hops/(num_nodes * num_requests)}")
     after
-      20_000 -> print("Couldn't exit even after 20s!")
+      50_000 -> print("Couldn't exit even after 50s!")
     end
   end
 
