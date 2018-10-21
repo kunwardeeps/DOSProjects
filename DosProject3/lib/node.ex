@@ -88,12 +88,14 @@ defmodule Chord.Node do
 
   def forward_message(finger_table, destination_key, node_key, current_hop_count) do
     successor = Chord.Registry.get_successor(node_key)
-    [pid, succ_node_name, succ_node_key] = successor
-    if (destination_bet_current_successor(node_key, succ_node_key, destination_key)) do
-      Chord.Main.print("Forwarding to successor #{inspect([pid, succ_node_name, succ_node_key])} from #{node_key}")
-      GenServer.cast(pid, {:forward, destination_key, current_hop_count})
-    else
-      forward_message_closest_preceding_node(finger_table, destination_key, node_key, current_hop_count)
+    if (successor != nil) do
+      [pid, succ_node_name, succ_node_key] = successor
+      if (destination_bet_current_successor(node_key, succ_node_key, destination_key)) do
+        Chord.Main.print("Forwarding to successor #{inspect([pid, succ_node_name, succ_node_key])} from #{node_key}")
+        GenServer.cast(pid, {:forward, destination_key, current_hop_count})
+      else
+        forward_message_closest_preceding_node(finger_table, destination_key, node_key, current_hop_count)
+      end
     end
   end
 

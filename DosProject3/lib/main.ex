@@ -2,7 +2,7 @@ defmodule Chord.Main do
   @moduledoc """
   Documentation for DosProject3.
   """
-  @debug true
+  @debug false
 
   def start(num_nodes, num_requests, failure_nodes \\ 0) do
     init_registry()
@@ -30,7 +30,7 @@ defmodule Chord.Main do
 
   def wait_for_exit(num_nodes, num_requests) do
     receive do
-      {:converge, hops} -> print("Average hops = #{hops/(num_nodes * num_requests)}")
+      {:converge, hops} -> IO.inspect("Average hops = #{hops/(num_nodes * num_requests)}")
     after
       60_000 -> print("Timeout after 60s!")
     end

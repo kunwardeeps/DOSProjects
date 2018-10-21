@@ -19,9 +19,7 @@ defmodule Chord.Ring.Main do
   def handle_call({:init, failure_nodes}, _from, [num_nodes, num_requests, exit_count, main_pid, total_hops]) do
     init_nodes(num_nodes, num_requests, 1)
     init_node_states()
-    if (failure_nodes > 0) do
-      init_stabilizer()
-    end
+    init_stabilizer(failure_nodes)
     send_random_nodes(Chord.Registry.get_all_values())
     {:reply, [], [num_nodes, num_requests, exit_count, main_pid, total_hops]}
   end
@@ -34,15 +32,19 @@ defmodule Chord.Ring.Main do
       {:noreply, [num_nodes, num_requests, exit_count+1, main_pid, total_hops]}
     else
       Chord.Main.print("exit count: #{exit_count+1}, so exiting...")
-      GenServer.call(ChordStabilizer, {:shutdown})
+      if (Process.whereis(ChordStabilizer) != nil) do
+        GenServer.call(ChordStabilizer, {:shutdown})
+      end
       send(main_pid, {:converge, total_hops})
       {:noreply, [num_nodes, num_requests, exit_count+1, main_pid, total_hops]}
     end
   end
 
-  def init_stabilizer() do
-    GenServer.start_link(Chord.Stabilizer, [], name: ChordStabilizer)
-    GenServer.cast(ChordStabilizer, {:trigger, @m})
+  def init_stabilizer(failure_nodes) do
+    if (failure_nodes > 0) do
+      GenServer.start_link(Chord.Stabilizer, [], name: ChordStabilizer)
+      GenServer.cast(ChordStabilizer, {:trigger, @m})
+    end
   end
 
   def send_random_nodes([]) do end
