@@ -3,7 +3,7 @@ defmodule Chord.Node do
 
   @impl true
   def init(args) do
-    [node_key, node_name, num_requests, num_nodes, _finger_table, _num_hops, _predecessor, _successor] = args
+    [node_key, node_name, _num_requests, _num_nodes, _finger_table, _num_hops, _predecessor, _successor] = args
     Chord.Main.print("Node: #{inspect(node_key)} (name: #{inspect(node_name)}, pid: #{inspect(self())}) initiated!")
     {:ok, args}
   end
@@ -15,8 +15,12 @@ defmodule Chord.Node do
   end
 
   @impl true
-  def handle_cast({:trigger}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]) do
-    #TODO call stabilize and fix_fingers
+  def handle_call({:trigger_stabilize, m}, _from, [node_key, node_name, num_requests, num_nodes, _finger_table, num_hops, _predecessor, _successor]) do
+    finger_table = Chord.Registry.get_finger_table(node_key, m)
+    predecessor = Chord.Registry.get_predecessor(node_key)
+    [_,_, pred_key] = predecessor
+    Chord.Main.print("#{node_key} stabilized, new finger table: #{inspect(finger_table)}, predecessor: #{inspect(pred_key)}")
+    {:reply, :ok, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, Enum.at(finger_table, 0)]}
   end
 
   @impl true
@@ -38,6 +42,13 @@ defmodule Chord.Node do
     pid = spawn fn -> send_messages(finger_table, node_key, num_requests, num_nodes, m, 0) end
     Process.monitor(pid)
     {:noreply, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]}
+  end
+
+  @impl true
+  def handle_cast({:shutdown}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]) do
+    IO.puts("Failing node id #{inspect(node_key)}")
+    Chord.Registry.remove(node_key)
+    {:stop, :normal, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]}
   end
 
   @impl true
