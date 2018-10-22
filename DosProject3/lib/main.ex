@@ -2,7 +2,7 @@ defmodule Chord.Main do
   @moduledoc """
   Documentation for DosProject3.
   """
-  @debug false
+  @debug true
 
   def start(num_nodes, num_requests, failure_nodes \\ 0) do
     init_registry()

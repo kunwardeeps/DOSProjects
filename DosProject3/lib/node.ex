@@ -39,7 +39,8 @@ defmodule Chord.Node do
 
   @impl true
   def handle_cast({:send_random, m}, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]) do
-    pid = spawn fn -> send_messages(finger_table, node_key, num_requests, num_nodes, m, 0) end
+    [_,_, pred_key] = predecessor
+    pid = spawn fn -> send_messages(finger_table, node_key, num_requests, num_nodes, m, 0, pred_key) end
     Process.monitor(pid)
     {:noreply, [node_key, node_name, num_requests, num_nodes, finger_table, num_hops, predecessor, successor]}
   end
@@ -66,14 +67,17 @@ defmodule Chord.Node do
     GenServer.call(ChordMain, {:update_exit_count})
   end
 
-  def send_messages(finger_table, node_key, num_requests, num_nodes, m, i) do
+  def send_messages(finger_table, node_key, num_requests, num_nodes, m, i, pred_key) do
     if (i< num_requests) do
       random_key = :rand.uniform(trunc(:math.pow(2, m)))
-      Chord.Main.print("Sending message to #{random_key} from #{node_key}, finger table: #{inspect(finger_table)}")
-      forward_message(finger_table, random_key, node_key, 1)
-      send_messages(finger_table, node_key, num_requests, num_nodes, m, i+1)
+      if !(destination_bet_current_predecessor(node_key, pred_key, random_key)) do
+        Chord.Main.print("Sending message to #{random_key} from #{node_key}, finger table: #{inspect(finger_table)}")
+        forward_message(finger_table, random_key, node_key, 1)
+      end
+      Process.sleep(1000)
+      send_messages(finger_table, node_key, num_requests, num_nodes, m, i+1, pred_key)
     else
-      Process.sleep(num_requests * num_nodes + 10000)
+      Process.sleep(num_requests * num_nodes + 5000)
       Process.exit(self(), :kill)
     end
   end
@@ -96,6 +100,8 @@ defmodule Chord.Node do
       else
         forward_message_closest_preceding_node(finger_table, destination_key, node_key, current_hop_count)
       end
+    else
+      forward_message_closest_preceding_node(finger_table, destination_key, node_key, current_hop_count)
     end
   end
 
