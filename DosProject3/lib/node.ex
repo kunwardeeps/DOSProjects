@@ -74,7 +74,7 @@ defmodule Chord.Node do
         Chord.Main.print("Sending message to #{random_key} from #{node_key}, finger table: #{inspect(finger_table)}")
         forward_message(finger_table, random_key, node_key, 1)
       end
-      Process.sleep(1000)
+      Process.sleep(1500)
       send_messages(finger_table, node_key, num_requests, num_nodes, m, i+1, pred_key)
     else
       Process.sleep(num_requests * num_nodes + 5000)
