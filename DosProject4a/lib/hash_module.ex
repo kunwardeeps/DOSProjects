@@ -10,4 +10,17 @@ defmodule KryptoCoin.HashModule do
     |> Enum.reduce([], fn(_, acc) -> [Enum.random(list) | acc] end)
     |> Enum.join("")
   end
+
+  def create_keypair() do
+    :crypto.generate_key(:ecdh, :secp256k1)
+  end
+
+  def sign(private_key, data) do
+    :crypto.sign(:ecdsa, :sha256, data, [private_key, :secp256k1])
+  end
+
+  def verify_signature(public_key, signature, data) do
+    :crypto.verify(:ecdsa, :sha256, data, signature, [public_key, :secp256k1])
+  end
+
 end
