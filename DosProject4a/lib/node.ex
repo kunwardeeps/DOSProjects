@@ -1,20 +1,29 @@
 defmodule KryptoCoin.Node do
   use GenServer
 
+  @init_amount 100.0
+
   @impl true
-  def init([init_amount]) do
-    wallet = KryptoCoin.Wallet.generate(init_amount)
-    coinbase = KryptoCoin.Transaction.generate_coinbase(init_amount, wallet.public_key, wallet.private_key)
-    blockchain = []
-    transaction_pool = %{coinbase.id => coinbase}
-    KryptoCoin.Registry.put(wallet.public_key, self())
-    {:ok, [blockchain, wallet, transaction_pool]}
+  def init(existing_node_pid) do
+    transaction_pool = %{}
+    if (existing_node_pid == nil) do
+      wallet = KryptoCoin.Wallet.generate(@init_amount)
+      coinbase = KryptoCoin.Transaction.generate_coinbase(@init_amount, wallet.public_key, wallet.private_key)
+      blockchain = [KryptoCoin.Block.initialize(coinbase)]
+      KryptoCoin.Registry.put(wallet.public_key, self())
+      {:ok, [blockchain, wallet, transaction_pool]}
+    else
+      wallet = KryptoCoin.Wallet.generate(0.0)
+      blockchain = get_block_chain(existing_node_pid)
+      KryptoCoin.Registry.put(wallet.public_key, self())
+      {:ok, [blockchain, wallet, transaction_pool]}
+    end
   end
 
   @impl true
   def handle_call({:update_utxo, amount, new_amount}, _from, state) do
     [blockchain, wallet, transaction_pool] = state
-    wallet = KryptoCoin.Wallet.update_utxo(wallet, amount, new_amount)
+    wallet = KryptoCoin.Wallet.update_utxos(wallet, amount, new_amount)
     {:reply, :ok, [blockchain, wallet, transaction_pool]}
   end
 
@@ -59,6 +68,16 @@ defmodule KryptoCoin.Node do
     end
   end
 
+  @impl true
+  def handle_call({:broadcast_block}, _from, state) do
+
+  end
+
+  @impl true
+  def handle_call({:get_block_chain}, _from, [blockchain, wallet, transaction_pool]) do
+    {:reply, blockchain, [blockchain, wallet, transaction_pool]}
+  end
+
   #API
   def start_link(params) do
     GenServer.start_link(__MODULE__, params)
@@ -83,4 +102,16 @@ defmodule KryptoCoin.Node do
   def get_balance(pid) do
     GenServer.call(pid, {:get_balance})
   end
+
+  def broadcast_block(block, self_public_key) do
+    list_of_nodes = KryptoCoin.Registry.get_all_values() -- [self()]
+    for node <- list_of_nodes do
+      GenServer.call(node, {:broadcast_block, block})
+    end
+  end
+
+  def get_block_chain(pid) do
+    GenServer.call(pid, {:get_block_chain})
+  end
+
 end

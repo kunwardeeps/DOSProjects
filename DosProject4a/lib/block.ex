@@ -1,4 +1,5 @@
 defmodule KryptoCoin.Block do
+  @difficulty 2
   defstruct index: nil,
             hash: nil,
             previous_hash: nil,
@@ -6,25 +7,32 @@ defmodule KryptoCoin.Block do
             timestamp: nil,
             transactions: []
 
-  def initialize() do
+  def initialize(coinbase_txn) do
+    timestamp = :os.system_time(:seconds)
+    index = 0
+    prev_hash = "0"
+    {nonce, hash} = calculate_hash(index, prev_hash, 0, timestamp, [coinbase_txn])
     %KryptoCoin.Block{
       index: 0,
-      timestamp: :os.system_time(:seconds)
+      nonce: nonce,
+      timestamp: timestamp,
+      hash: hash,
+      transactions: [coinbase_txn]
     }
   end
 
-  def calculate_block_hash(block) do
-    %{
-      index: index,
-      previous_hash: previous_hash,
-      nonce: nonce,
-      timestamp: timestamp,
-      transactions: transactions
-    } = block
-
-    KryptoCoin.HashModule.get_hash(num_to_string(index) <>
-    handle_empty_string(previous_hash) <> num_to_string(nonce) <>
-    num_to_string(timestamp) <> concatenate_transactions(transactions))
+  def calculate_hash(index, previous_hash, nonce, timestamp, transactions) do
+    digest = num_to_string(index) <>
+              handle_empty_string(previous_hash) <>
+              num_to_string(nonce) <>
+              num_to_string(timestamp) <>
+              concatenate_transactions(transactions, "")
+    hash = KryptoCoin.HashModule.get_hash(digest)
+    if (String.slice(hash, 0..@difficulty-1) == "00") do
+      {nonce, hash}
+    else
+      calculate_hash(index, previous_hash, nonce+1, timestamp, transactions)
+    end
   end
 
   defp handle_empty_string(str) do
@@ -43,12 +51,13 @@ defmodule KryptoCoin.Block do
     end
   end
 
-  defp concatenate_transactions(transactions) do
-    if (Enum.empty?(transactions)) do
-      ""
-    else
-      Enum.reduce(transactions, fn(x, acc) -> x <> acc end)
-    end
-
+  def concatenate_transactions([transaction|tail], acc) do
+    concatenate_transactions(tail, acc <> handle_empty_string(transaction.sender) <>
+      handle_empty_string(transaction.receiver) <> Float.to_string(transaction.amount))
   end
+
+  def concatenate_transactions([], acc) do
+    acc
+  end
+
 end

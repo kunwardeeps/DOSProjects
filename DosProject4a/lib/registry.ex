@@ -26,6 +26,11 @@ defmodule KryptoCoin.Registry do
   end
 
   @impl true
+  def handle_call({:get_all_values}, _from, processes) do
+    {:reply, Map.values(processes), processes}
+  end
+
+  @impl true
   def handle_call({:put, id, pid}, _from, processes) do
     if Map.has_key?(processes, id) do
       {:reply, :already_present, processes}
@@ -50,5 +55,9 @@ defmodule KryptoCoin.Registry do
 
   def get_all() do
     GenServer.call(ProcRegistry, {:get_all})
+  end
+
+  def get_all_values() do
+    GenServer.call(ProcRegistry, {:get_all_values})
   end
 end
