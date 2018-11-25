@@ -16,11 +16,14 @@ defmodule KryptoCoin.HashModule do
   end
 
   def sign(private_key, data) do
-    :crypto.sign(:ecdsa, :sha256, data, [private_key, :secp256k1])
+    {:ok, private_key_decoded} = private_key |> Base.decode16()
+    :crypto.sign(:ecdsa, :sha256, data, [private_key_decoded, :secp256k1]) |> Base.encode16()
   end
 
   def verify_signature(public_key, signature, data) do
-    :crypto.verify(:ecdsa, :sha256, data, signature, [public_key, :secp256k1])
+    {:ok, public_key_decoded} = public_key |> Base.decode16()
+    {:ok, signature_decoded} = signature |> Base.decode16()
+    :crypto.verify(:ecdsa, :sha256, data, signature_decoded, [public_key_decoded, :secp256k1])
   end
 
 end

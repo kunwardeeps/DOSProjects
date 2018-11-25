@@ -21,6 +21,34 @@ defmodule KryptoCoin.Block do
     }
   end
 
+  def generate_block(transactions, last_block) do
+    timestamp = :os.system_time(:seconds)
+    index = last_block.index + 1
+    prev_hash = last_block.hash
+    {nonce, hash} = calculate_hash(index, prev_hash, 0, timestamp, transactions)
+    %KryptoCoin.Block{
+      index: 0,
+      nonce: nonce,
+      timestamp: timestamp,
+      hash: hash,
+      transactions: transactions
+    }
+  end
+
+  def validate(block) do
+    hash = KryptoCoin.HashModule.get_hash(num_to_string(block.index) <>
+      handle_empty_string(block.previous_hash) <>
+      num_to_string(block.nonce) <>
+      num_to_string(block.timestamp) <>
+      concatenate_transactions(block.transactions, ""))
+    cond do
+      hash == block.hash ->
+        :invalid_nonce
+      true ->
+        :ok
+    end
+  end
+
   def calculate_hash(index, previous_hash, nonce, timestamp, transactions) do
     digest = num_to_string(index) <>
               handle_empty_string(previous_hash) <>
