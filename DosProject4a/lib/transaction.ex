@@ -108,20 +108,4 @@ defmodule KryptoCoin.Transaction do
       (Map.has_key?(utxos, input.txoid) or Map.has_key?(utxos, input.txoid)) and acc end)
   end
 
-  defp handle_empty_string(str) do
-    if (str == nil) do
-      ""
-    else
-      str
-    end
-  end
-
-  defp num_to_string(num) do
-    if (num == nil) do
-      ""
-    else
-      Integer.to_string(num)
-    end
-  end
-
 end

@@ -1,20 +1,23 @@
 # DosProject4.1
 # COT5615: Distributed Operating Systems
-Part I of Bitcoin Simulator
+This is part 1 of the implementation of the bitcoin protocol in which basic features of the protocol like making transactions and mining blocks are implemented. 
 
-## Team Members
+## Team Members:
 1. Kunwardeep Singh UFID 2421-3955
 2. Gayatri Behera UFID 3258-9909
 
+##Running the test cases:
+mix test
 
-## Description
-This is part one of the implementation of the bitcoin protocol - 
-The requirement was that the primary features of the protocol be implemented, transactions made 
-and subsequent blocks be mined. The same has been completed and unit test cases have been written to
-verify it's successful implementation.
+Sample Output:
+...................
 
+Finished in 1.5 seconds
+19 tests, 0 failures
 
-Test Cases cover the following scenarios:-
+Randomized with seed 990180
+
+## Test Cases Implemented:
 1. Verify genesis block is mined
 2. Verify genesis block hash difficulty
 3. Join Network and verify if genesis block is present in new node
@@ -35,5 +38,9 @@ Test Cases cover the following scenarios:-
 18. Validate blockchain
 19. Modify transaction amount and check if blockchain is still valid
 
-##Running the test cases:
-mix test dos_project4_test.exs
+##Bonus Features
+
+1. Both normal and coinbase transactions are implemented. On successful mining of a block, miner gets a reward amount equal to the coinbase transaction amount of that block.
+2. Immutability of entire blockchain is handled by checking valid hashes, nonces and transactions in every block. If any transaction is changed in any of the block, subsequent blocks are invalidated.
+3. Transactions and blocks are broadcasted just like in the Gossip protocol fully connected network.
+4. Decentralization is achieved as every node has its own copy of blockchain, transaction pool and UTXOs.
