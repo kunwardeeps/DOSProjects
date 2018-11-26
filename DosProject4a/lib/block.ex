@@ -75,7 +75,6 @@ defmodule KryptoCoin.Block do
       end
     else
       current_block = Enum.at(blockchain, index)
-
       prev_hash = KryptoCoin.Block.get_hash(prev_block)
       if (prev_block.hash == current_block.previous_hash and prev_block.index+1 == current_block.index and prev_hash == prev_block.hash) do
           validate_blockchain(blockchain, index+1, current_block)
