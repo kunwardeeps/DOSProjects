@@ -11,4 +11,15 @@ defmodule KryptoCoin.Wallet do
       private_key: private_key
     }
   end
+
+  def get_balance(utxos, public_key) do
+    Enum.reduce(Map.values(utxos), 0,
+      fn (utxo, acc) ->
+        if (utxo.addr == public_key) do
+          acc + utxo.amount
+        else
+          acc
+        end
+      end)
+  end
 end

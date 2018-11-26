@@ -3,7 +3,7 @@ defmodule KryptoCoin.Main do
   Documentation for DosProject4.
   """
 
-  @debug true
+  @debug false
 
   def start() do
     KryptoCoin.Registry.start_link()
@@ -16,7 +16,7 @@ defmodule KryptoCoin.Main do
     KryptoCoin.Node.send_funds(pid1, receiver_public_key, 10.0)
     KryptoCoin.Node.mine_block(pid1)
 
-    {pid1,pid2,pid3,pid3}
+    {pid1,pid2,pid3,pid4}
   end
 
   def print(msg) do

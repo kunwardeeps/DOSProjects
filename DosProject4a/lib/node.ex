@@ -1,7 +1,7 @@
 defmodule KryptoCoin.Node do
   use GenServer
 
-  @init_amount 100.0
+  @coinbase_amount 100.0
 
   @impl true
   def init(existing_node_pid) do
@@ -9,7 +9,7 @@ defmodule KryptoCoin.Node do
     wallet = KryptoCoin.Wallet.generate()
 
     if (existing_node_pid == nil) do
-      coinbase = KryptoCoin.Transaction.generate_coinbase(@init_amount, wallet.public_key, wallet.private_key)
+      coinbase = KryptoCoin.Transaction.generate_coinbase(@coinbase_amount, wallet.public_key, wallet.private_key)
       utxos = %{Enum.at(coinbase.outputs,0).txoid => Enum.at(coinbase.outputs,0)}
       blockchain = [KryptoCoin.Block.initialize(coinbase)]
       KryptoCoin.Registry.put(wallet.public_key, self())
@@ -25,14 +25,7 @@ defmodule KryptoCoin.Node do
   @impl true
   def handle_call({:send_funds, receiver_public_key, amount}, _from, state) do
     [blockchain, wallet, transaction_pool, utxos] = state
-    balance = Enum.reduce(Map.values(utxos), 0,
-      fn (utxo, acc) ->
-        if (utxo.addr == wallet.public_key) do
-          acc + utxo.amount
-        else
-          acc
-        end
-      end)
+    balance = KryptoCoin.Wallet.get_balance(utxos, wallet.public_key)
 
     KryptoCoin.Main.print("Trying to send #{amount}, balance = #{balance}, utxos = #{inspect(utxos)}")
 
@@ -69,10 +62,12 @@ defmodule KryptoCoin.Node do
 
   @impl true
   def handle_call({:receive_block, block}, _from, [blockchain, wallet, transaction_pool, utxos]) do
-    result = KryptoCoin.Block.validate(block)
+    result = KryptoCoin.Block.validate(block, blockchain ++ [block])
     KryptoCoin.Main.print("Block received, result = #{result}")
     if (result == :ok) do
       transaction_pool = Map.drop(transaction_pool, Enum.map(block.transactions, fn(txn) -> txn.id end))
+      coinbase = KryptoCoin.Block.get_coinbase(block)
+      utxos = Map.put(utxos, Enum.at(coinbase.outputs,0).txoid, Enum.at(coinbase.outputs,0))
       {:reply, result, [blockchain ++ [block], wallet, transaction_pool, utxos]}
     else
       {:reply, result, [blockchain, wallet, transaction_pool, utxos]}
@@ -95,18 +90,30 @@ defmodule KryptoCoin.Node do
   end
 
   @impl true
+  def handle_call({:get_balance}, _from, [blockchain, wallet, transaction_pool, utxos]) do
+    {:reply, KryptoCoin.Wallet.get_balance(utxos, wallet.public_key), [blockchain, wallet, transaction_pool, utxos]}
+  end
+
+  @impl true
+  def handle_call({:get_transaction_pool}, _from, [blockchain, wallet, transaction_pool, utxos]) do
+    {:reply, transaction_pool, [blockchain, wallet, transaction_pool, utxos]}
+  end
+
+  @impl true
   def handle_call({:mine_block}, _from, [blockchain, wallet, transaction_pool, utxos]) do
     if (Enum.count(transaction_pool) == 0) do
       KryptoCoin.Main.print("No transactions to mine in the pool!")
       {:reply, :no_transactions, [blockchain, wallet, transaction_pool, utxos]}
     else
-      block = KryptoCoin.Block.generate_block(Map.values(transaction_pool), List.last(blockchain))
+      coinbase = KryptoCoin.Transaction.generate_coinbase(@coinbase_amount, wallet.public_key, wallet.private_key)
+      block = KryptoCoin.Block.generate_block(Map.values(transaction_pool) ++ [coinbase], List.last(blockchain))
       result = broadcast_block(block)
       if result == :ok do
         transaction_pool = Map.drop(transaction_pool, Enum.map(block.transactions, fn(txn) -> txn.id end))
-        {:reply, wallet.public_key, [blockchain ++ [block], wallet, transaction_pool, utxos]}
+        utxos = Map.put(utxos, Enum.at(coinbase.outputs,0).txoid, Enum.at(coinbase.outputs,0))
+        {:reply, block, [blockchain ++ [block], wallet, transaction_pool, utxos]}
       else
-        {:reply, wallet.public_key, [blockchain, wallet, transaction_pool, utxos]}
+        {:reply, block, [blockchain, wallet, transaction_pool, utxos]}
       end
     end
   end
@@ -176,6 +183,18 @@ defmodule KryptoCoin.Node do
 
   def mine_block(pid) do
     GenServer.call(pid, {:mine_block})
+  end
+
+  def get_coinbase_amount() do
+    @coinbase_amount
+  end
+
+  def get_balance(pid) do
+    GenServer.call(pid, {:get_balance})
+  end
+
+  def get_transaction_pool(pid) do
+    GenServer.call(pid, {:get_transaction_pool})
   end
 
 end
