@@ -31,18 +31,7 @@ defmodule KryptoCoin.Test do
     assert genesis1.hash == genesis2.hash
   end
 
-  test "4. Join network and verify if genesis block is present in new node" do
-    KryptoCoin.Registry.start_link()
-    {_, pid1} = KryptoCoin.Node.start_link(nil)
-    {_, pid2} = KryptoCoin.Node.start_link(pid1)
-    blockchain1 = KryptoCoin.Node.get_block_chain(pid1)
-    genesis1 = Enum.at(blockchain1, 0)
-    blockchain2 = KryptoCoin.Node.get_block_chain(pid2)
-    genesis2 = Enum.at(blockchain2, 0)
-    assert genesis1.hash == genesis2.hash
-  end
-
-  test "5. Verify account utxos in all nodes are same" do
+  test "4. Verify account utxos in all nodes are same" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -53,7 +42,7 @@ defmodule KryptoCoin.Test do
     assert utxos1 == utxos2 and utxos2 == utxos3
   end
 
-  test "6. Verify initial account balance from utxos in all nodes" do
+  test "5. Verify initial account balance from utxos in all nodes" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -66,7 +55,7 @@ defmodule KryptoCoin.Test do
     assert balance3 == 0.0
   end
 
-  test "7. Create a transaction and verify input and output amounts" do
+  test "6. Create a transaction and verify input and output amounts" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -76,7 +65,7 @@ defmodule KryptoCoin.Test do
     assert KryptoCoin.Transaction.validate_input_outputs(transaction)
   end
 
-  test "8. Create a transaction and verify inputs are consumed from utxos" do
+  test "7. Create a transaction and verify inputs are consumed from utxos" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -87,7 +76,7 @@ defmodule KryptoCoin.Test do
     assert !KryptoCoin.Transaction.inputs_exist?(transaction.inputs, utxos)
   end
 
-  test "9. Transfer funds and verify account balances" do
+  test "8. Transfer funds and verify account balances" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -102,7 +91,7 @@ defmodule KryptoCoin.Test do
     assert balance3 == 0.0
   end
 
-  test "10. Verify transaction is broadcasted and is present in every node's pool" do
+  test "9. Verify transaction is broadcasted and is present in every node's pool" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -117,7 +106,7 @@ defmodule KryptoCoin.Test do
     assert Map.has_key?(pool3, transaction.id)
   end
 
-  test "11. Transfer funds with invalid amount and verify balance" do
+  test "10. Transfer funds with invalid amount and verify balance" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -134,7 +123,7 @@ defmodule KryptoCoin.Test do
     assert balance3 == 0.0
   end
 
-  test "12. Mine a block and verify difficulty" do
+  test "11. Mine a block and verify difficulty" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -145,7 +134,7 @@ defmodule KryptoCoin.Test do
     assert String.slice(block.hash, 0, KryptoCoin.Block.get_difficulty()) == String.duplicate("0", KryptoCoin.Block.get_difficulty())
   end
 
-  test "13. Mine a block and verify hash" do
+  test "12. Mine a block and verify hash" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -157,18 +146,7 @@ defmodule KryptoCoin.Test do
     assert block.hash == KryptoCoin.Block.get_hash(block)
   end
 
-  test "14. Mine a block and verify difficulty" do
-    KryptoCoin.Registry.start_link()
-    {_, pid1} = KryptoCoin.Node.start_link(nil)
-    {_, pid2} = KryptoCoin.Node.start_link(pid1)
-    KryptoCoin.Node.start_link(pid1)
-    receiver_public_key = KryptoCoin.Node.get_public_key(pid2)
-    KryptoCoin.Node.send_funds(pid1, receiver_public_key, 10.0)
-    block = KryptoCoin.Node.mine_block(pid1)
-    assert String.slice(block.hash, 0, KryptoCoin.Block.get_difficulty()) == String.duplicate("0", KryptoCoin.Block.get_difficulty())
-  end
-
-  test "15. Mine a block and verify it is broadcasted in all nodes" do
+  test "13. Mine a block and verify it is broadcasted in all nodes" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -184,7 +162,7 @@ defmodule KryptoCoin.Test do
     assert Enum.at(blockchain3, 1).hash == block.hash
   end
 
-  test "16. Validate previous hash in blockchain" do
+  test "14. Validate previous hash in blockchain" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -196,7 +174,7 @@ defmodule KryptoCoin.Test do
     assert Enum.at(blockchain, 0).hash == Enum.at(blockchain, 1).previous_hash
   end
 
-  test "17. Validate indices in blockchain" do
+  test "15. Validate indices in blockchain" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -208,7 +186,7 @@ defmodule KryptoCoin.Test do
     assert Enum.at(blockchain, 0).index+1 == Enum.at(blockchain, 1).index
   end
 
-  test "18. Validate reward transaction in new block" do
+  test "16. Validate reward transaction in new block" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -220,7 +198,7 @@ defmodule KryptoCoin.Test do
     assert coinbase != nil
   end
 
-  test "19. Validate reward transaction amount" do
+  test "17. Validate reward transaction amount" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -232,7 +210,7 @@ defmodule KryptoCoin.Test do
     assert coinbase.amount <= KryptoCoin.Node.get_coinbase_amount()
   end
 
-  test "20. Validate blockchain" do
+  test "18. Validate blockchain" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
@@ -244,7 +222,7 @@ defmodule KryptoCoin.Test do
     assert KryptoCoin.Block.validate(block, blockchain)
   end
 
-  test "21. Modify transaction amount and check if blockchain is still valid" do
+  test "19. Modify transaction amount and check if blockchain is still valid" do
     KryptoCoin.Registry.start_link()
     {_, pid1} = KryptoCoin.Node.start_link(nil)
     {_, pid2} = KryptoCoin.Node.start_link(pid1)
