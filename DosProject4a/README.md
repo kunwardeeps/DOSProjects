@@ -1,13 +1,14 @@
 # DosProject4.1
 # COT5615: Distributed Operating Systems
-This is part 1 of the implementation of the bitcoin protocol in which basic features of the protocol like making transactions and mining blocks are implemented. 
+This project covers part 1 of the bitcoin simulator project in which basic features of the protocol like making transactions and mining blocks are implemented. 
 
 ## Team Members:
 1. Kunwardeep Singh UFID 2421-3955
 2. Gayatri Behera UFID 3258-9909
 
 ##Running the test cases:
-mix test
+1. cd into project directory
+2. mix test
 
 Sample Output:
 ...................
@@ -37,6 +38,8 @@ Randomized with seed 990180
 17. Validate reward transaction amount
 18. Validate blockchain
 19. Modify transaction amount and check if blockchain is still valid
+20. Create a transaction and verify set hash and generated hash are same
+21. Modify a transaction and check if it fails validation
 
 ##Bonus Features
 

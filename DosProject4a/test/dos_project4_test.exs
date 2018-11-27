@@ -241,4 +241,27 @@ defmodule KryptoCoin.Test do
     assert KryptoCoin.Block.validate(block, modified_blockchain) == :invalid_blockchain
   end
 
+  test "20. Create a transaction and verify set hash and generated hash are same" do
+    KryptoCoin.Registry.start_link()
+    {_, pid1} = KryptoCoin.Node.start_link(nil)
+    {_, pid2} = KryptoCoin.Node.start_link(pid1)
+    KryptoCoin.Node.start_link(pid1)
+    receiver_public_key = KryptoCoin.Node.get_public_key(pid2)
+    transaction = KryptoCoin.Node.send_funds(pid1, receiver_public_key, 10.0)
+    digest = KryptoCoin.Transaction.get_digest(transaction)
+    assert transaction.id == KryptoCoin.HashModule.get_hash(digest)
+  end
+
+  test "21. Modify a transaction and check if it fails validation" do
+    KryptoCoin.Registry.start_link()
+    {_, pid1} = KryptoCoin.Node.start_link(nil)
+    {_, pid2} = KryptoCoin.Node.start_link(pid1)
+    KryptoCoin.Node.start_link(pid1)
+    receiver_public_key = KryptoCoin.Node.get_public_key(pid2)
+    transaction = KryptoCoin.Node.send_funds(pid1, receiver_public_key, 10.0)
+    utxos = KryptoCoin.Node.get_utxos(pid1)
+    new_transaction = %{transaction | amount: 1000.0}
+    assert KryptoCoin.Transaction.validate(new_transaction, utxos) == :invalid_hash
+  end
+
 end
