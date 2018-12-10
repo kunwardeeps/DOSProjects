@@ -12,13 +12,15 @@ defmodule KryptoCoin.Transaction do
 
   def generate_coinbase(amount, miner_address, private_key) do
     timestamp = :os.system_time(:seconds)
-    txid = KryptoCoin.HashModule.get_hash(miner_address <> Float.to_string(amount))
+    type = "coinbase"
+    digest = get_digest("", miner_address, amount, [], timestamp, type)
+    txid = KryptoCoin.HashModule.get_hash(digest)
     signature = KryptoCoin.HashModule.sign(private_key, txid)
 
     %KryptoCoin.Transaction{
       id: txid,
       timestamp: timestamp,
-      sender: nil,
+      sender: "",
       receiver: miner_address,
       amount: amount,
       type: "coinbase",
@@ -53,10 +55,13 @@ defmodule KryptoCoin.Transaction do
 
   def generate_transaction(amount, wallet, receiver_pub_key, utxos) do
     timestamp = :os.system_time(:seconds)
-    txid = KryptoCoin.HashModule.get_hash(wallet.public_key <> receiver_pub_key <> Float.to_string(amount))
-    signature = KryptoCoin.HashModule.sign(wallet.private_key, txid)
+    type = "regular"
     inputs = get_input_utxos(utxos, amount, wallet.public_key)
     left_over_amount = Enum.reduce(inputs, 0.0, fn(utxo,acc) -> utxo.amount + acc end) - amount
+    digest = get_digest(wallet.public_key, receiver_pub_key, amount, inputs, timestamp, type)
+    txid = KryptoCoin.HashModule.get_hash(digest)
+    signature = KryptoCoin.HashModule.sign(wallet.private_key, txid)
+    outputs = calculate_outputs(txid, wallet, receiver_pub_key, amount, left_over_amount)
 
     %KryptoCoin.Transaction{
       id: txid,
@@ -66,8 +71,27 @@ defmodule KryptoCoin.Transaction do
       amount: amount,
       signature: signature,
       inputs: inputs,
-      outputs: calculate_outputs(txid, wallet, receiver_pub_key, amount, left_over_amount)
+      outputs: outputs,
+      type: type
     }
+  end
+
+  def get_digest(sender, receiver, amount, inputs, timestamp, type) do
+    sender <>
+    receiver <>
+    type <>
+    Float.to_string(amount) <>
+    "#{inspect(inputs)}" <>
+    Integer.to_string(timestamp)
+  end
+
+  def get_digest(transaction) do
+    transaction.sender <>
+    transaction.receiver <>
+    transaction.type <>
+    Float.to_string(transaction.amount) <>
+    "#{inspect(transaction.inputs)}" <>
+    Integer.to_string(transaction.timestamp)
   end
 
   def calculate_outputs(txid, wallet, receiver_pub_key, amount, left_over_amount) do
@@ -90,9 +114,12 @@ defmodule KryptoCoin.Transaction do
   end
 
   def validate(transaction, utxos) do
-    txn_data = KryptoCoin.HashModule.get_hash(transaction.sender <> transaction.receiver <> Float.to_string(transaction.amount))
+    digest = get_digest(transaction)
+    txn_hash = KryptoCoin.HashModule.get_hash(digest)
     cond do
-      !KryptoCoin.HashModule.verify_signature(transaction.sender, transaction.signature, txn_data) ->
+      transaction.id != txn_hash ->
+        :invalid_hash
+      !KryptoCoin.HashModule.verify_signature(transaction.sender, transaction.signature, txn_hash) ->
         :invalid_signature
       !validate_input_outputs(transaction) ->
         :invalid_amount
