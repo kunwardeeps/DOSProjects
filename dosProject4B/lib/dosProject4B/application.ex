@@ -9,7 +9,7 @@ defmodule DosProject4B.Application do
     # List all child processes to be supervised
     children = [
       # Start the Ecto repository
-      DosProject4B.Repo,
+      #DosProject4B.Repo,
       # Start the endpoint when the application starts
       DosProject4BWeb.Endpoint
       # Starts a worker by calling: DosProject4B.Worker.start_link(arg)

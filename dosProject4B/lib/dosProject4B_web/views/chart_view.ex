@@ -25,7 +25,6 @@ defmodule DosProject4BWeb.ChartView do
 
   def my_name() do
     :rand.uniform(10) * 10
-    IO.puts "mint"
   end
 end
 
