@@ -1,13 +1,5 @@
 <html>
 	<head>
-		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-		<!-- jQuery library -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-		<!-- Latest compiled JavaScript -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 	</head>
 
@@ -15,7 +7,8 @@
 		<header>
 			<section class="container">
 				<nav role="navigation">
-					<button type="button" id="my-btn">Begin Simulation</button> 					
+					<button type="button" id="begin-btn">Begin Simulation</button> 					
+					<button type="button" id="end-btn">End Simulation</button> 					
 				</nav>
 			</section>
 		</header>
@@ -77,7 +70,7 @@
 				});
 			}
 
-			$("#my-btn").click(function(){
+			$("#begin-btn").click(function(){
 				setInterval(fetchdatatransactionAmtChart,5000);
 			});
 
@@ -111,7 +104,7 @@
 				});
 			}
 
-			$("#my-btn").click(function(){
+			$("#begin-btn").click(function(){
 				setInterval(fetchdatatransactionCntChart,5000);
 			});
 
@@ -145,7 +138,7 @@
 				});
 			}
 
-			$("#my-btn").click(function(){
+			$("#begin-btn").click(function(){
 				setInterval(fetchdatabitCoinMinedChart,5000);
 			});
 
@@ -184,7 +177,7 @@
 				});
 			}
 
-			$("#my-btn").click(function(){
+			$("#begin-btn").click(function(){
 				setInterval(fetchdatablocksAddedChart,5000);
 			});
 
