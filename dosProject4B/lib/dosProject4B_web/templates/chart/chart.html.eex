@@ -1,204 +1,193 @@
-<head>
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<html>
+	<head>
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
-	<!-- jQuery library -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-	<!-- Latest compiled JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-</head>
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+	</head>
 
-<body>
-<!--<div class="phx-hero">
-  
-</div> -->
+	<body>
+		<header>
+			<section class="container">
+				<nav role="navigation">
+					<button type="button" id="my-btn">Begin Simulation</button> 					
+				</nav>
+			</section>
+		</header>
 
-<div class="row">
-  <div class="col-sm-6">
-  </canvas>
-  	<canvas id="transactionCntChart">
-  </canvas>
-  </div>
-  <div class="col-sm-6">
-  </canvas>
-  	<canvas id="transactionAmtChart">
-  </canvas>
-  </div>
-  	
-</div>
-<div class="row">
-  <div class="col-sm-6">
-  </canvas>
-  	<canvas id="bitCoinMinedChart">
-  </canvas>
-  </div>
-  <div class="col-sm-6">
-  </canvas>
-  	<canvas id="blocksAddedChart">
-  </canvas>
-  </div>
+		<div class="row">
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="transactionCntChart">
+				</canvas>
+			</div>
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="transactionAmtChart">
+				</canvas>
+			</div>
+		</div>
 
-  <div>
-	<script>
-		var config = {
-		type: 'line',
-		data: {
-		labels: [0],
-		datasets: [
-		{
-			label: "Transacted Amount",
-			data: [0],
-			fill: true,
-			backgroundColor: "rgba(153,255,51,1)"
-		}
-		]
-		}
-		};
+		<div class="row">
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="bitCoinMinedChart">
+				</canvas>
+			</div>
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="blocksAddedChart">
+				</canvas>
+			</div>
+		<div>
 
-		var ctx = document.getElementById("transactionAmtChart").getContext("2d");
-		var transactionAmtChart = new Chart(ctx, config);
-
-		function fetchdata(){
-			//console.log('here labels :', config.data.labels)
-			//console.log('here length:', config.data.labels.length)
-			
-			$.ajax({
-			url: 'http://localhost:4000/hello/',
-			type: 'get',
-				success: function(response){
-					// Perform operation on the return value
-					//console.log(response);
-					config.data.labels.push((config.data.labels.length)*5);
-					config.data.datasets[0].data.push(response);
-					transactionAmtChart.update();
+		<script>
+			var configtransactionAmtChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+				datasets: [
+					{
+						label: "Transacted Amount",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(153,255,51,1)"
+					}
+					]
 				}
+			};
+
+			var ctx = document.getElementById("transactionAmtChart").getContext("2d");
+			var transactionAmtChart = new Chart(ctx, configtransactionAmtChart);
+
+			function fetchdatatransactionAmtChart(){
+				$.ajax({
+				url: 'http://localhost:4000/hello/',
+				type: 'get',
+					success: function(response){
+						configtransactionAmtChart.data.labels.push((configtransactionAmtChart.data.labels.length)*5);
+						configtransactionAmtChart.data.datasets[0].data.push(response);
+						transactionAmtChart.update();
+					}
+				});
+			}
+
+			$("#my-btn").click(function(){
+				setInterval(fetchdatatransactionAmtChart,5000);
 			});
-		}
 
-		$(document).ready(function(){
-			setInterval(fetchdata,5000);
-		});
-
-		var configtransactionCntChart = {
-		type: 'line',
-		data: {
-		labels: [0],
-		datasets: [
-		{
-			label: "# of Transactions",
-			data: [0],
-			fill: true,
-			backgroundColor: "rgba(242, 65, 46,0.7)"
-		}
-		]
-		}
-		};
-
-		var ctx = document.getElementById("transactionCntChart").getContext("2d");
-		var transactionCntChart = new Chart(ctx, configtransactionCntChart);
-
-		function fetchdatatransactionCntChart(){
-			//console.log('here labels :', configtransactionCntChart.data.labels)
-			//console.log('here length:', configtransactionCntChart.data.labels.length)
-			
-			$.ajax({
-			url: 'http://localhost:4000/hello/',
-			type: 'get',
-				success: function(response){
-					// Perform operation on the return value
-					//console.log(response);
-					configtransactionCntChart.data.labels.push((configtransactionCntChart.data.labels.length)*5);
-					configtransactionCntChart.data.datasets[0].data.push(response);
-					transactionCntChart.update();
+			var configtransactionCntChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+				datasets: [
+					{
+						label: "# of Transactions",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(242, 65, 46,0.7)"
+					}
+					]
 				}
+			};
+
+			var ctx = document.getElementById("transactionCntChart").getContext("2d");
+			var transactionCntChart = new Chart(ctx, configtransactionCntChart);
+
+			function fetchdatatransactionCntChart(){
+				$.ajax({
+				url: 'http://localhost:4000/hello/',
+				type: 'get',
+					success: function(response){
+						configtransactionCntChart.data.labels.push((configtransactionCntChart.data.labels.length)*5);
+						configtransactionCntChart.data.datasets[0].data.push(response);
+						transactionCntChart.update();
+					}
+				});
+			}
+
+			$("#my-btn").click(function(){
+				setInterval(fetchdatatransactionCntChart,5000);
 			});
-		}
 
-		$(document).ready(function(){
-			setInterval(fetchdatatransactionCntChart,5000);
-		});
-
-		var configbitCoinMinedChart = {
-		type: 'line',
-		data: {
-		labels: [0],
-		datasets: [
-		{
-			label: "# of Bitcoins mined",
-			data: [0],
-			fill: true,
-			backgroundColor: "rgba(107, 66, 244,0.7)"
-		}
-		]
-		}
-		};
-
-		var ctx = document.getElementById("bitCoinMinedChart").getContext("2d");
-		var bitCoinMinedChart = new Chart(ctx, configbitCoinMinedChart);
-
-		function fetchdatabitCoinMinedChart(){
-			//console.log('here labels :', configbitCoinMinedChart.data.labels)
-			//console.log('here length:', configbitCoinMinedChart.data.labels.length)
-			
-			$.ajax({
-			url: 'http://localhost:4000/hello/',
-			type: 'get',
-				success: function(response){
-					// Perform operation on the return value
-					//console.log(response);
-					configbitCoinMinedChart.data.labels.push((configbitCoinMinedChart.data.labels.length)*5);
-					configbitCoinMinedChart.data.datasets[0].data.push(response);
-					bitCoinMinedChart.update();
+			var configbitCoinMinedChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+				datasets: [
+					{
+						label: "# of Bitcoins mined",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(107, 66, 244,0.7)"
+					}
+				]
 				}
+			};
+
+			var ctx = document.getElementById("bitCoinMinedChart").getContext("2d");
+			var bitCoinMinedChart = new Chart(ctx, configbitCoinMinedChart);
+
+			function fetchdatabitCoinMinedChart(){
+				$.ajax({
+				url: 'http://localhost:4000/hello/',
+				type: 'get',
+					success: function(response){
+						configbitCoinMinedChart.data.labels.push((configbitCoinMinedChart.data.labels.length)*5);
+						configbitCoinMinedChart.data.datasets[0].data.push(response);
+						bitCoinMinedChart.update();
+					}
+				});
+			}
+
+			$("#my-btn").click(function(){
+				setInterval(fetchdatabitCoinMinedChart,5000);
 			});
-		}
 
-		$(document).ready(function(){
-			setInterval(fetchdatabitCoinMinedChart,5000);
-		});
-
-		var configblocksAddedChart = {
-		type: 'line',
-		data: {
-		labels: [0],
-		datasets: [
-		{
-			label: "# of Blocks added",
-			data: [0],
-			fill: true,
-			backgroundColor: "rgba(193, 214, 8,1)"
-		}
-		]
-		}
-		};
-
-		var ctx = document.getElementById("blocksAddedChart").getContext("2d");
-		var blocksAddedChart = new Chart(ctx, configblocksAddedChart);
-
-		function fetchdatablocksAddedChart(){
-			//console.log('here labels :', configblocksAddedChart.data.labels)
-			//console.log('here length:', configblocksAddedChart.data.labels.length)
-			
-			$.ajax({
-			url: 'http://localhost:4000/hello/',
-			type: 'get',
-				success: function(response){
-					// Perform operation on the return value
-					//console.log(response);
-					configblocksAddedChart.data.labels.push((configblocksAddedChart.data.labels.length)*5);
-					configblocksAddedChart.data.datasets[0].data.push(response);
-					blocksAddedChart.update();
+			var configblocksAddedChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+					datasets: [
+					{
+						label: "# of Blocks added",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(193, 214, 8,1)"
+					}
+					]
 				}
+			};
+
+			var ctx = document.getElementById("blocksAddedChart").getContext("2d");
+			var blocksAddedChart = new Chart(ctx, configblocksAddedChart);
+
+			function fetchdatablocksAddedChart(){
+				//console.log('here labels :', configblocksAddedChart.data.labels)
+				//console.log('here length:', configblocksAddedChart.data.labels.length)
+				
+				$.ajax({
+				url: 'http://localhost:4000/hello/',
+				type: 'get',
+					success: function(response){
+						// Perform operation on the return value
+						//console.log(response);
+						configblocksAddedChart.data.labels.push((configblocksAddedChart.data.labels.length)*5);
+						configblocksAddedChart.data.datasets[0].data.push(response);
+						blocksAddedChart.update();
+					}
+				});
+			}
+
+			$("#my-btn").click(function(){
+				setInterval(fetchdatablocksAddedChart,5000);
 			});
-		}
 
-		$(document).ready(function(){
-			setInterval(fetchdatablocksAddedChart,5000);
-		});
-
-	</script>
-  </div>
-</div>
-</body>
+		</script>
+	</body>
+</html>
