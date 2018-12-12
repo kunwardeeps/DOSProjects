@@ -195,15 +195,11 @@
 			var blocksAddedChart = new Chart(ctx, configblocksAddedChart);
 
 			function fetchdatablocksAddedChart(){
-				//console.log('here labels :', configblocksAddedChart.data.labels)
 				//console.log('here length:', configblocksAddedChart.data.labels.length)
-				
 				$.ajax({
 				url: 'http://localhost:4000/hello/',
 				type: 'get',
 					success: function(response){
-						// Perform operation on the return value
-						//console.log(response);
 						configblocksAddedChart.data.labels.push((configblocksAddedChart.data.labels.length)*5);
 						configblocksAddedChart.data.datasets[0].data.push(response[2]);
 						blocksAddedChart.update();

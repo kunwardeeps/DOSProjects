@@ -10,20 +10,20 @@
 				</div>
 			</div>
 		</div>
-		<form>
+		<form id="transact-form">
 			<div class="form-group">
 				<label for="publishKeysSelect">Select Public Keys</label>
-				<select class="form-control" id="publishKeysSelect"></select>
+				<select class="form-control" id="publishKeysSelect" value='a'></select>
 			</div>
 			<div class="form-group">
 				<label for="enterAmount">Enter Transaction Amount</label>
-				<input type="text" class="form-control" id="enterAmount" placeholder="50">
+				<input type="text" class="form-control" id="enterAmount" placeholder="50" value="50">
 			</div>
 			<div class="form-group">
 				<button type="button" id="sign-btn">Sign</button> 					
 			</div>
 			<div class="form-group">
-				<input class="form-control" type="text" placeholder="Status" readonly>
+				<input class="form-control" type="text" id="status" placeholder="Status" readonly>
 			</div>
 			<div class="form-group">
 				<button type="button" id="publish-btn">Publish</button>
@@ -59,10 +59,24 @@
 					}
 				}
 
+			$("#sign-btn").click(function(){
+				var pubKey = document.getElementById("publishKeysSelect").value.length > 0 ?  document.getElementById("publishKeysSelect").value : 'a';
+				var txnAmt = document.getElementById("enterAmount").value;
+				$("#status").val("Pending");
+				console.log("pubKey: ", pubKey, txnAmt)
+
+				/*$.ajax({
+				url: 'http://localhost:4000/sign?pubKey='+pubKey+'txnAmt='+txnAmt,
+				type: 'get',
+					success: function(response){
+						console.log(response);
+					}
+				});
+				*/
+			});
+
 			$("#publish-btn").click(function(){
-				var nodes = document.getElementById("nodes").value;
-				startSimulator(nodes)
-				
+				alert("Published");
 			});
 		</script>
 
