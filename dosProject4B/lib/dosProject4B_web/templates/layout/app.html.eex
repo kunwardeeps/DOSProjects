@@ -50,36 +50,34 @@ $(document).ready(function () {
 });
 </script>
 
-<div id="wrapper">
-	<div class="overlay"></div>
+  <div id="wrapper">
     
-        <!-- Sidebar -->
-	<nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
-		<ul class="nav sidebar-nav">
-			<li>
-				<a href="http://localhost:4000">Home</a>
-			</li>
-			<li>
-				<a href="http://localhost:4000/transaction">Create a Transaction</a>
-			</li>
-			<li>
-				<a href="http://localhost:4000/chart">View Simulations</a>
-			</li>                
-			<li>
-				<a href="https://bitcoin.org/en/developer-guide#block-chain">About</a>
-			</li>
-		</ul>
-	</nav>
+          <!-- Sidebar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
+      <ul class="nav sidebar-nav">
+        <li>
+          <a href="http://localhost:4000">Home</a>
+        </li>
+        <li>
+          <a href="http://localhost:4000/transaction">Create a Transaction</a>
+        </li>
+        <li>
+          <a href="http://localhost:4000/chart">Dashboard</a>
+        </li>                
+        <li>
+          <a href="https://bitcoin.org/en/developer-guide#block-chain">About</a>
+        </li>
+      </ul>
+    </nav>
 
-	<div id="page-content-wrapper">
-            	<button type="button" class="hamburger is-closed" data-toggle="offcanvas">
-            		<span class="hamb-top"></span>
-    			<span class="hamb-middle"></span>
-			<span class="hamb-bottom"></span>
-            	</button>
-        </div>
-</div>
-
+    <div>
+      <button type="button" class="hamburger is-closed" data-toggle="offcanvas">
+        <span class="hamb-top"></span>
+        <span class="hamb-middle"></span>
+        <span class="hamb-bottom"></span>
+      </button>
+    </div>
+  </div>
 
   <body>    
     <main role="main" class="container">

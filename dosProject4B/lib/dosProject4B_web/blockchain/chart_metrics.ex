@@ -11,28 +11,36 @@ defmodule KryptoCoin.ChartMetrics do
   #Server
   @impl true
   def init(data) do
-    {:ok, [0,0,0,0.0,0.0]}
+    queue = :queue.new
+    {:ok, [0,0,0,0.0,0.0, queue]}
   end
 
   @impl true
-  def handle_call({:get_data}, _from, data) do
-    {:reply, data, data}
+  def handle_call({:get_data}, _from, [txs, txf, blks, totbc, avg, queue]) do
+    {:reply, [txs, txf, blks, totbc, avg, :queue.to_list(queue)], [0, 0, 0, totbc, avg, queue]}
   end
 
   @impl true
-  def handle_call({:report_successful_txn}, _from, [txs, txf, blks, totbc, avg]) do
-    {:reply, :ok, [txs+1, txf, blks, totbc, avg]}
+  def handle_call({:report_successful_txn, txn_id, amount}, _from, [txs, txf, blks, totbc, avg, queue]) do
+    if :queue.len(queue) < 5 do
+      queue = :queue.in([txn_id, amount], queue)
+      {:reply, :ok, [txs+1, txf, blks, totbc, avg, queue]}
+    else
+      queue = :queue.drop(queue)
+      queue = :queue.in([txn_id, amount], queue)
+      {:reply, :ok, [txs+1, txf, blks, totbc, avg, queue]}
+    end
   end
 
   @impl true
-  def handle_call({:report_failed_txn}, _from, [txs, txf, blks, totbc, avg]) do
-    {:reply, :ok, [txs, txf+1, blks, totbc, avg]}
+  def handle_call({:report_failed_txn}, _from, [txs, txf, blks, totbc, avg, queue]) do
+    {:reply, :ok, [txs, txf+1, blks, totbc, avg, queue]}
   end
 
   @impl true
-  def handle_call({:report_block, amount}, _from, [txs, txf, blks, totbc, avg]) do
+  def handle_call({:report_block, amount}, _from, [txs, txf, blks, totbc, avg, queue]) do
     total_nodes = length(KryptoCoin.Registry.get_all())
-    {:reply, :ok, [txs, txf, blks+1, totbc+amount, (totbc+amount)/total_nodes]}
+    {:reply, :ok, [txs, txf, blks+1, totbc+amount, (totbc+amount)/total_nodes, queue]}
   end
 
   #API
@@ -44,8 +52,8 @@ defmodule KryptoCoin.ChartMetrics do
     GenServer.stop(ChartMetrics)
   end
 
-  def report_successful_txn() do
-    GenServer.call(ChartMetrics, {:report_successful_txn})
+  def report_successful_txn(txn_id, amount) do
+    GenServer.call(ChartMetrics, {:report_successful_txn, txn_id, amount})
   end
 
   def report_failed_txn() do

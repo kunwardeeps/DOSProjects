@@ -15,7 +15,7 @@ defmodule KryptoCoin.Node do
       blockchain = [KryptoCoin.Block.initialize(coinbase)]
       KryptoCoin.Registry.put(wallet.public_key, self())
       KryptoCoin.ChartMetrics.report_block(@first_coinbase_amount)
-      KryptoCoin.ChartMetrics.report_successful_txn()
+      KryptoCoin.ChartMetrics.report_successful_txn(coinbase.id, coinbase.amount)
       {:ok, [blockchain, wallet, transaction_pool, utxos]}
     else
       utxos = get_utxos(existing_node_pid)
@@ -44,7 +44,7 @@ defmodule KryptoCoin.Node do
 
       if (status == :ok) do
         utxos = update_utxos(transaction, utxos)
-        KryptoCoin.ChartMetrics.report_successful_txn()
+        KryptoCoin.ChartMetrics.report_successful_txn(transaction.id, transaction.amount)
         {:reply, transaction, [blockchain, wallet, transaction_pool, utxos]}
       else
         KryptoCoin.ChartMetrics.report_failed_txn()
@@ -118,7 +118,7 @@ defmodule KryptoCoin.Node do
         transaction_pool = Map.drop(transaction_pool, Enum.map(block.transactions, fn(txn) -> txn.id end))
         utxos = Map.put(utxos, Enum.at(coinbase.outputs,0).txoid, Enum.at(coinbase.outputs,0))
         KryptoCoin.ChartMetrics.report_block(@coinbase_amount)
-        KryptoCoin.ChartMetrics.report_successful_txn() #coinbase
+        KryptoCoin.ChartMetrics.report_successful_txn(coinbase.id, coinbase.amount) #coinbase
         {:reply, block, [blockchain ++ [block], wallet, transaction_pool, utxos]}
       else
         {:reply, block, [blockchain, wallet, transaction_pool, utxos]}

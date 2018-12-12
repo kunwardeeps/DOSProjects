@@ -38,7 +38,7 @@ defmodule KryptoCoin.Simulator do
   end
 
   def create_random_transaction(from_pid, receiver_pid) do
-    amount = Enum.random(1..10)/1
+    amount = Enum.random(1..200)/1
     create_transaction(from_pid, receiver_pid, amount)
   end
 

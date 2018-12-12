@@ -5,24 +5,41 @@
 
 	<body>
 		<header>
-			<section class="container">
-				<nav role="navigation">
-					<input type="text" id="nodes" value="5">
-					<button type="button" id="begin-btn">Begin Simulation</button> 					
-					<button type="button" id="end-btn">End Simulation</button> 					
-				</nav>
-			</section>
+			<label></label> 
+			<h1 class="text-center">Dashboard</h1>
 		</header>
+
+		<div class="form">
+			<label>Enter Nodes: </label>
+			<input type="text" id="nodes" value="5">
+		</div>
+
+		<div class="btn-group">
+			<button type="button" id="begin-btn">Begin Simulation</button> 					
+			<button type="button" id="end-btn">End Simulation</button>
+		</div>
+
+		<div class="row">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Transaction ID</th>
+						<th>Amount</th>
+					</tr>
+				</thead>
+				
+			</table>
+		</div>
 
 		<div class="row">
 			<div class="col-sm-6">
 				</canvas>
-					<canvas id="transactionCntChart">
+					<canvas id="successTxnsChart">
 				</canvas>
 			</div>
 			<div class="col-sm-6">
 				</canvas>
-					<canvas id="transactionAmtChart">
+					<canvas id="failedTxnsChart">
 				</canvas>
 			</div>
 		</div>
@@ -30,53 +47,26 @@
 		<div class="row">
 			<div class="col-sm-6">
 				</canvas>
-					<canvas id="bitCoinMinedChart">
+					<canvas id="blocksMinedChart">
 				</canvas>
 			</div>
 			<div class="col-sm-6">
 				</canvas>
-					<canvas id="blocksAddedChart">
+					<canvas id="totalBitcoinsChart">
 				</canvas>
 			</div>
-		<div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="avgBalanceChart">
+				</canvas>
+			</div>
+		</div>
 
 		<script>
-			var configtransactionAmtChart = {
-				type: 'line',
-				data: {
-				labels: [0],
-				datasets: [
-					{
-						label: "Transacted Amount",
-						data: [0],
-						fill: true,
-						backgroundColor: "rgba(153,255,51,1)"
-					}
-					]
-				}
-			};
-
-			var ctx = document.getElementById("transactionAmtChart").getContext("2d");
-			var transactionAmtChart = new Chart(ctx, configtransactionAmtChart);
-
-			var id1;
-			var id2;
-			var id3;
-			var id4;
-			var id5;
-
-			function fetchdatatransactionAmtChart(){
-				$.ajax({
-				url: 'http://localhost:4000/hello/',
-				type: 'get',
-					success: function(response){
-						console.log(response)
-						configtransactionAmtChart.data.labels.push((configtransactionAmtChart.data.labels.length)*5);
-						configtransactionAmtChart.data.datasets[0].data.push(response[3]);
-						transactionAmtChart.update();
-					}
-				});
-			}
+			var id;
 
 			function startSimulator(nodes){
 				$.ajax({
@@ -89,11 +79,7 @@
 			}
 
 			function stopSimulator(nodes){
-				clearInterval(id1);
-				clearInterval(id2);
-				clearInterval(id3);
-				clearInterval(id4);
-				clearInterval(id5);
+				clearInterval(id);
 				$.ajax({
 				url: 'http://localhost:4000/stop',
 				type: 'get',
@@ -106,23 +92,20 @@
 			$("#begin-btn").click(function(){
 				var nodes = document.getElementById("nodes").value;
 				startSimulator(nodes)
-				id1 = setInterval(fetchdatatransactionAmtChart,5000);
-				id2 = setInterval(fetchdatatransactionCntChart,5000);
-				id3 = setInterval(fetchdatabitCoinMinedChart,5000);
-				id4 = setInterval(fetchdatablocksAddedChart,5000);
+				id = setInterval(fetchMetricsData,5000);
 			});
 
 			$("#end-btn").click(function(){
 				stopSimulator();
 			});
-
-			var configtransactionCntChart = {
+			
+			var configsuccessTxnsChart = {
 				type: 'line',
 				data: {
 				labels: [0],
 				datasets: [
 					{
-						label: "# of Transactions",
+						label: "Successful Transactions",
 						data: [0],
 						fill: true,
 						backgroundColor: "rgba(242, 65, 46,0.7)"
@@ -131,28 +114,34 @@
 				}
 			};
 
-			var ctx = document.getElementById("transactionCntChart").getContext("2d");
-			var transactionCntChart = new Chart(ctx, configtransactionCntChart);
+			var ctx1 = document.getElementById("successTxnsChart").getContext("2d");
+			var successTxnsChart = new Chart(ctx1, configsuccessTxnsChart);
 
-			function fetchdatatransactionCntChart(){
-				$.ajax({
-				url: 'http://localhost:4000/hello/',
-				type: 'get',
-					success: function(response){
-						configtransactionCntChart.data.labels.push((configtransactionCntChart.data.labels.length)*5);
-						configtransactionCntChart.data.datasets[0].data.push(response[0]);
-						transactionCntChart.update();
-					}
-				});
-			}
-
-			var configbitCoinMinedChart = {
+			var configfailedTxnsChart = {
 				type: 'line',
 				data: {
 				labels: [0],
 				datasets: [
 					{
-						label: "# of Bitcoins mined",
+						label: "Failed Transactions",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(153,255,51,1)"
+					}
+					]
+				}
+			};
+
+			var ctx2 = document.getElementById("failedTxnsChart").getContext("2d");
+			var failedTxnsChart = new Chart(ctx2, configfailedTxnsChart);
+
+			var configblocksMinedChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+				datasets: [
+					{
+						label: "Blocks mined",
 						data: [0],
 						fill: true,
 						backgroundColor: "rgba(107, 66, 244,0.7)"
@@ -161,28 +150,16 @@
 				}
 			};
 
-			var ctx = document.getElementById("bitCoinMinedChart").getContext("2d");
-			var bitCoinMinedChart = new Chart(ctx, configbitCoinMinedChart);
+			var ctx3 = document.getElementById("blocksMinedChart").getContext("2d");
+			var blocksMinedChart = new Chart(ctx3, configblocksMinedChart);
 
-			function fetchdatabitCoinMinedChart(){
-				$.ajax({
-				url: 'http://localhost:4000/hello/',
-				type: 'get',
-					success: function(response){
-						configbitCoinMinedChart.data.labels.push((configbitCoinMinedChart.data.labels.length)*5);
-						configbitCoinMinedChart.data.datasets[0].data.push(response);
-						bitCoinMinedChart.update();
-					}
-				});
-			}
-
-			var configblocksAddedChart = {
+			var configtotalBitcoinsChart = {
 				type: 'line',
 				data: {
 				labels: [0],
 					datasets: [
 					{
-						label: "# of Blocks added",
+						label: "Total Bitcoins in Network",
 						data: [0],
 						fill: true,
 						backgroundColor: "rgba(193, 214, 8,1)"
@@ -191,18 +168,52 @@
 				}
 			};
 
-			var ctx = document.getElementById("blocksAddedChart").getContext("2d");
-			var blocksAddedChart = new Chart(ctx, configblocksAddedChart);
+			var ctx4 = document.getElementById("totalBitcoinsChart").getContext("2d");
+			var totalBitcoinsChart = new Chart(ctx4, configtotalBitcoinsChart);
 
-			function fetchdatablocksAddedChart(){
-				//console.log('here length:', configblocksAddedChart.data.labels.length)
+			var configAvgBalanceChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+					datasets: [
+					{
+						label: "Average Balance Per User",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(193, 214, 8,1)"
+					}
+					]
+				}
+			};
+
+			var ctx5 = document.getElementById("avgBalanceChart").getContext("2d");
+			var avgBalanceChart = new Chart(ctx5, configAvgBalanceChart);
+
+			function fetchMetricsData(){
 				$.ajax({
 				url: 'http://localhost:4000/hello/',
 				type: 'get',
 					success: function(response){
-						configblocksAddedChart.data.labels.push((configblocksAddedChart.data.labels.length)*5);
-						configblocksAddedChart.data.datasets[0].data.push(response[2]);
-						blocksAddedChart.update();
+						console.log(response);
+						configsuccessTxnsChart.data.labels.push((configsuccessTxnsChart.data.labels.length)*5);
+						configsuccessTxnsChart.data.datasets[0].data.push(response[0]);
+						successTxnsChart.update();
+
+						configfailedTxnsChart.data.labels.push((configfailedTxnsChart.data.labels.length)*5);
+						configfailedTxnsChart.data.datasets[0].data.push(response[1]);
+						failedTxnsChart.update();
+
+						configblocksMinedChart.data.labels.push((configblocksMinedChart.data.labels.length)*5);
+						configblocksMinedChart.data.datasets[0].data.push(response[2]);
+						blocksMinedChart.update();
+
+						configtotalBitcoinsChart.data.labels.push((configtotalBitcoinsChart.data.labels.length)*5);
+						configtotalBitcoinsChart.data.datasets[0].data.push(response[3]);
+						totalBitcoinsChart.update();
+
+						configAvgBalanceChart.data.labels.push((configAvgBalanceChart.data.labels.length)*5);
+						configAvgBalanceChart.data.datasets[0].data.push(response[4]);
+						avgBalanceChart.update();
 					}
 				});
 			}
