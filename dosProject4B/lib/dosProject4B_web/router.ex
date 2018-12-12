@@ -18,6 +18,7 @@ defmodule DosProject4BWeb.Router do
 
     get "/", PageController, :index
     get "/hello", HelloController, :index
+    get "/dropDown", HelloController, :dropDown
     get "/chart", ChartController, :chart
     get "/start", ChartController, :start
     get "/stop", ChartController, :stop
