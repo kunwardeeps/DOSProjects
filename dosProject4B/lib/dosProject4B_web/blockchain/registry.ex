@@ -45,6 +45,10 @@ defmodule KryptoCoin.Registry do
     GenServer.start_link(__MODULE__, %{}, name: ProcRegistry)
   end
 
+  def stop_link() do
+    GenServer.stop(ProcRegistry)
+  end
+
   def put(key, value) do
     GenServer.call(ProcRegistry, {:put, key, value})
   end

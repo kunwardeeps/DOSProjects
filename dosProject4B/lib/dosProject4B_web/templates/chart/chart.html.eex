@@ -7,6 +7,7 @@
 		<header>
 			<section class="container">
 				<nav role="navigation">
+					<input type="text" id="nodes" value="5">
 					<button type="button" id="begin-btn">Begin Simulation</button> 					
 					<button type="button" id="end-btn">End Simulation</button> 					
 				</nav>
@@ -58,20 +59,61 @@
 			var ctx = document.getElementById("transactionAmtChart").getContext("2d");
 			var transactionAmtChart = new Chart(ctx, configtransactionAmtChart);
 
+			var id1;
+			var id2;
+			var id3;
+			var id4;
+			var id5;
+
 			function fetchdatatransactionAmtChart(){
 				$.ajax({
 				url: 'http://localhost:4000/hello/',
 				type: 'get',
 					success: function(response){
+						console.log(response)
 						configtransactionAmtChart.data.labels.push((configtransactionAmtChart.data.labels.length)*5);
-						configtransactionAmtChart.data.datasets[0].data.push(response);
+						configtransactionAmtChart.data.datasets[0].data.push(response[3]);
 						transactionAmtChart.update();
 					}
 				});
 			}
 
+			function startSimulator(nodes){
+				$.ajax({
+				url: 'http://localhost:4000/start?nodes='+nodes,
+				type: 'get',
+					success: function(response){
+						console.log(response);
+					}
+				});
+			}
+
+			function stopSimulator(nodes){
+				clearInterval(id1);
+				clearInterval(id2);
+				clearInterval(id3);
+				clearInterval(id4);
+				clearInterval(id5);
+				$.ajax({
+				url: 'http://localhost:4000/stop',
+				type: 'get',
+					success: function(response){
+						console.log(response);
+					}
+				});
+			}
+
 			$("#begin-btn").click(function(){
-				setInterval(fetchdatatransactionAmtChart,5000);
+				var nodes = document.getElementById("nodes").value;
+				startSimulator(nodes)
+				id1 = setInterval(fetchdatatransactionAmtChart,5000);
+				id2 = setInterval(fetchdatatransactionCntChart,5000);
+				id3 = setInterval(fetchdatabitCoinMinedChart,5000);
+				id4 = setInterval(fetchdatablocksAddedChart,5000);
+			});
+
+			$("#end-btn").click(function(){
+				stopSimulator();
 			});
 
 			var configtransactionCntChart = {
@@ -98,15 +140,11 @@
 				type: 'get',
 					success: function(response){
 						configtransactionCntChart.data.labels.push((configtransactionCntChart.data.labels.length)*5);
-						configtransactionCntChart.data.datasets[0].data.push(response);
+						configtransactionCntChart.data.datasets[0].data.push(response[0]);
 						transactionCntChart.update();
 					}
 				});
 			}
-
-			$("#begin-btn").click(function(){
-				setInterval(fetchdatatransactionCntChart,5000);
-			});
 
 			var configbitCoinMinedChart = {
 				type: 'line',
@@ -138,10 +176,6 @@
 				});
 			}
 
-			$("#begin-btn").click(function(){
-				setInterval(fetchdatabitCoinMinedChart,5000);
-			});
-
 			var configblocksAddedChart = {
 				type: 'line',
 				data: {
@@ -171,15 +205,11 @@
 						// Perform operation on the return value
 						//console.log(response);
 						configblocksAddedChart.data.labels.push((configblocksAddedChart.data.labels.length)*5);
-						configblocksAddedChart.data.datasets[0].data.push(response);
+						configblocksAddedChart.data.datasets[0].data.push(response[2]);
 						blocksAddedChart.update();
 					}
 				});
 			}
-
-			$("#begin-btn").click(function(){
-				setInterval(fetchdatablocksAddedChart,5000);
-			});
 
 		</script>
 	</body>

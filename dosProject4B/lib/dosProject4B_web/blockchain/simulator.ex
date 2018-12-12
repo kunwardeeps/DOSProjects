@@ -12,6 +12,8 @@ defmodule KryptoCoin.Simulator do
   def stop() do
     txn_generator_pid = Process.whereis(:txn_generator)
     Process.exit(txn_generator_pid, :kill)
+    KryptoCoin.Registry.stop_link()
+    KryptoCoin.ChartMetrics.stop_link()
   end
 
   def initialize_network(n, first_pid) do
@@ -23,8 +25,7 @@ defmodule KryptoCoin.Simulator do
   end
 
   def create_random_transactions(n) do
-    IO.inspect(KryptoCoin.ChartMetrics.get_data())
-    Process.sleep(1000)
+    Process.sleep(:rand.uniform(1000))
     sender_pid = Enum.random(KryptoCoin.Registry.get_all_values())
     receiver_pid = Enum.random(KryptoCoin.Registry.get_all_values())
     if (sender_pid != receiver_pid) do

@@ -40,6 +40,10 @@ defmodule KryptoCoin.ChartMetrics do
     GenServer.start_link(__MODULE__, [], name: ChartMetrics)
   end
 
+  def stop_link() do
+    GenServer.stop(ChartMetrics)
+  end
+
   def report_successful_txn() do
     GenServer.call(ChartMetrics, {:report_successful_txn})
   end
