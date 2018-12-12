@@ -59,7 +59,7 @@ $(document).ready(function () {
           <a href="http://localhost:4000">Home</a>
         </li>
         <li>
-          <a href="http://localhost:4000/transaction">Create a Transaction</a>
+          <a href="http://localhost:4000/transact">Create a Transaction</a>
         </li>
         <li>
           <a href="http://localhost:4000/chart">Dashboard</a>

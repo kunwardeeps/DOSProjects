@@ -6,17 +6,19 @@ defmodule DosProject4BWeb.TransactionController do
   end
 
   def dropDown(conn, _params) do
-    result = ["a", "b", "c", "d", "e"]
+    result = KryptoCoin.Registry.get_all()
     json(conn, result)
   end
 
-  def sign(conn, params1) do
-    IO.inspect(params1)
-    #IO.inspect(params2)
-    {pubKey, _} = Integer.parse(Map.get(params1, "pubKey"))
-    IO.inspect(pubKey)
-    #{txnAmt, _} = Integer.parse(Map.get(params2, "txnAmt"))
-    # kd add method here
-    text(conn, "ok")
+  def transact(conn, params) do
+    IO.inspect(params)
+    %{"from" => from, "to" => to, "amount" => amount} = params
+    from_pid = KryptoCoin.Registry.get(from)
+    transaction = KryptoCoin.Node.send_funds(from_pid, to, amount)
+    if transaction == :insufficient_funds do
+      json(conn, %{"status" => "Insufficient Funds", "id" => nil, "signature" => nil})
+    else
+      json(conn, %{"status" => "Successful", "id" => transaction.id, "signature" => transaction.signature})
+    end
   end
 end

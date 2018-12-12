@@ -12,21 +12,39 @@
 		</div>
 		<form id="transact-form">
 			<div class="form-group">
-				<label for="publishKeysSelect">Select Public Keys</label>
-				<select class="form-control" id="publishKeysSelect" value='a'></select>
+				<div class="col-md-4 col-xs-8">
+					<label for="senderPublicKeys">Select Sender Public Key</label>
+					<select class="form-control" id="senderPublicKeys" value='a'></select>
+					
+				</div>
+				<div class="col-md-4 col-xs-8">
+					<label for="receiverPublicKeys">Select Receiver Public Key</label>
+					<select class="form-control" id="receiverPublicKeys" value='a'></select>
+				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group col-md-12 col-xs-12">
+			</div>
+			<div class="form-group col-md-4 col-xs-8">
+				<label for="enterAmount">Wallet Balance</label>
+				<input class="form-control" type="text" id="walletBalance" placeholder="Wallet Balance" readonly> 					
+			</div>
+			<div class="form-group col-md-12 col-xs-12">
+			</div>
+			<div class="form-group col-md-4 col-xs-8">
 				<label for="enterAmount">Enter Transaction Amount</label>
 				<input type="text" class="form-control" id="enterAmount" placeholder="50" value="50">
 			</div>
-			<div class="form-group">
-				<button type="button" id="sign-btn">Sign</button> 					
+			<div class="form-group col-md-12 col-xs-12">
+				<button type="button" id="publish-btn">Sign & Confirm</button>
 			</div>
-			<div class="form-group">
-				<input class="form-control" type="text" id="status" placeholder="Status" readonly>
+			<div class="form-group col-md-4 col-xs-8">
+				<input class="form-control" type="text" id="signature" placeholder="Signature" readonly> 					
 			</div>
-			<div class="form-group">
-				<button type="button" id="publish-btn">Publish</button>
+			<div class="form-group col-md-4 col-xs-8">
+				<input class="form-control" type="text" id="transactionID" placeholder="Transaction ID" readonly> 					
+			</div>
+			<div class="form-group col-md-4 col-xs-8">
+				<input class="form-control" type="text" id="status" placeholder="Status" readonly> 					
 			</div>
 		</form>
 		<script>
@@ -38,7 +56,12 @@
 					success: function(data){
 						helpers.buildDropdown(
 						data,
-						$('#publishKeysSelect'),
+						$('#senderPublicKeys'),
+						'Select an option'
+					);
+					helpers.buildDropdown(
+						data,
+						$('#receiverPublicKeys'),
 						'Select an option'
 					);}
 
@@ -65,14 +88,18 @@
 				$("#status").val("Pending");
 				console.log("pubKey: ", pubKey, txnAmt)
 
-				/*$.ajax({
-				url: 'http://localhost:4000/sign?pubKey='+pubKey+'txnAmt='+txnAmt,
+				$.ajax({
+				url: 'http://localhost:4000/sign',
+				contentType: 'application/json; charset=utf-8',
+				dataType: 'json',				
+				data: '{"pubKey":"' + pubKey + '","txnAmt":"' + txnAmt + '"}',
+				//data: JSON.stringify({pubKey: pubKey , txnAmt: txnAmt}),
 				type: 'get',
 					success: function(response){
 						console.log(response);
 					}
 				});
-				*/
+				
 			});
 
 			$("#publish-btn").click(function(){
