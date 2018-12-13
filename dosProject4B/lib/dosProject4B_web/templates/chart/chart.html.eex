@@ -165,7 +165,7 @@
 						label: "Total Bitcoins in Network",
 						data: [0],
 						fill: true,
-						backgroundColor: "rgba(193, 214, 8,1)"
+						backgroundColor: "rgba(193, 249, 10,1)"
 					}
 					]
 				}
