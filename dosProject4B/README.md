@@ -1,5 +1,9 @@
 # DosProject4B
 
+## Team Members
+1. Kunwardeep Singh (UFID: 2421-3955)
+1. Gayatri Behera (UFID: 3258-9909)
+
 ## Installation & Initialisation details
 To start your Phoenix server:
 
