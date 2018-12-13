@@ -88,13 +88,10 @@
 				var to = document.getElementById("receiverPublicKeys").value.length > 0 ?  document.getElementById("receiverPublicKeys").value : 'a';
 				var amount = document.getElementById("enterAmount").value;
 				
-				console.log("pubKey: ", from, amount)
-
 				$.ajax({
 				url: 'http://localhost:4000/gettransact?from='+from+'&to='+to+'&amount='+amount,
 				type: 'get',
 					success: function(response){
-						console.log(response);
 						$("#transactionID").val(response.id);
 						$("#signature").val(response.signature);
 						$("#status").val(response.status);

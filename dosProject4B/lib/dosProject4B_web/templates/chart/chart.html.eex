@@ -129,7 +129,7 @@
 						label: "Failed Transactions",
 						data: [0],
 						fill: true,
-						backgroundColor: "rgba(153,255,51,1)"
+						backgroundColor: "rgba(5,247,22,0.7)"
 					}
 					]
 				}
@@ -165,7 +165,7 @@
 						label: "Total Bitcoins in Network",
 						data: [0],
 						fill: true,
-						backgroundColor: "rgba(193, 249, 10,1)"
+						backgroundColor: "rgba(247, 110, 5,0.7)"
 					}
 					]
 				}
@@ -183,7 +183,7 @@
 						label: "Average Balance Per User",
 						data: [0],
 						fill: true,
-						backgroundColor: "rgba(66, 244, 241)"
+						backgroundColor: "rgba(66, 244, 241, 0.7)"
 					}
 					]
 				}
@@ -219,7 +219,7 @@
 						avgBalanceChart.update();
 
 						$("#dynamic").empty();
-						for (var i = 0; i < 50; i++) {
+						for (var i = 0; i < response[5].length; i++) {
 							$('#dynamic').append(generateTable(response[5][i])); 
 						}
 					}
@@ -227,6 +227,7 @@
 			}
 
 			function generateTable(array) {
+				console.log('array: ', array)
 				return "<tr><td>" +array[0] +"</td><td>" + array[1] +"</td></tr>";
 			}
 
