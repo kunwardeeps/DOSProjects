@@ -6,6 +6,11 @@ defmodule DosProject4BWeb.ChartController do
     render(conn, "chart.html", result: result)
   end
 
+  def getdata(conn, _params) do
+    result = KryptoCoin.ChartMetrics.get_data()
+    json(conn, result)
+  end
+
   def start(conn, params) do
     IO.inspect(params)
     {nodes, _} = Integer.parse(Map.get(params, "nodes"))

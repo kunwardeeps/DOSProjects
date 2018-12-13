@@ -22,7 +22,7 @@ defmodule KryptoCoin.ChartMetrics do
 
   @impl true
   def handle_call({:report_successful_txn, txn_id, amount}, _from, [txs, txf, blks, totbc, avg, queue]) do
-    if :queue.len(queue) < 5 do
+    if :queue.len(queue) < 50 do
       queue = :queue.in([txn_id, amount], queue)
       {:reply, :ok, [txs+1, txf, blks, totbc, avg, queue]}
     else

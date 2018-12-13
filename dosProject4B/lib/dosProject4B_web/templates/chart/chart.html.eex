@@ -20,19 +20,6 @@
 		</div>
 
 		<div class="row">
-			<table class="table" style="width:800px">
-				<thead>
-					<tr>
-						<th align="left">Transaction ID</th>
-						<th align="left">Amount</th>
-					</tr>
-				</thead>
-				<tbody id='dynamic'>
-				</tbody>
-			</table>
-		</div>
-
-		<div class="row">
 			<div class="col-sm-6">
 				</canvas>
 					<canvas id="successTxnsChart">
@@ -65,6 +52,21 @@
 				</canvas>
 			</div>
 		</div>		
+		<h2></h2> 
+		<h2>Last 50 Transactions</h2> 
+
+		<div class="row">
+			<table class="table" style="width:800px">
+				<thead>
+					<tr>
+						<th align="left">Transaction ID</th>
+						<th align="left">Amount</th>
+					</tr>
+				</thead>
+				<tbody id='dynamic'>
+				</tbody>
+			</table>
+		</div>
 
 		<script>
 			var id;
@@ -192,7 +194,7 @@
 
 			function fetchMetricsData(){
 				$.ajax({
-				url: 'http://localhost:4000/hello/',
+				url: 'http://localhost:4000/getdata/',
 				type: 'get',
 					success: function(response){
 						console.log(response);
@@ -217,7 +219,7 @@
 						avgBalanceChart.update();
 
 						$("#dynamic").empty();
-						for (var i = 0; i < 5; i++) {
+						for (var i = 0; i < 50; i++) {
 							$('#dynamic').append(generateTable(response[5][i])); 
 						}
 					}

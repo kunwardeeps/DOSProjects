@@ -17,7 +17,7 @@ defmodule DosProject4BWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    get "/hello", HelloController, :index
+    get "/getdata", ChartController, :getdata
     get "/dropDown", TransactionController, :dropDown
     get "/chart", ChartController, :chart
     get "/start", ChartController, :start
