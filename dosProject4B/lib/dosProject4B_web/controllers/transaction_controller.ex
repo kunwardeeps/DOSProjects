@@ -10,15 +10,25 @@ defmodule DosProject4BWeb.TransactionController do
     json(conn, result)
   end
 
-  def transact(conn, params) do
+  def gettransact(conn, params) do
     IO.inspect(params)
-    %{"from" => from, "to" => to, "amount" => amount} = params
+    %{"amount" => amount, "from" => from, "to" => to} = params
     from_pid = KryptoCoin.Registry.get(from)
-    transaction = KryptoCoin.Node.send_funds(from_pid, to, amount)
+    {amount_int, _} = Integer.parse(amount)
+    transaction = KryptoCoin.Node.send_funds(from_pid, to, amount_int/1)
+    new_balance = KryptoCoin.Node.get_balance(from_pid)
     if transaction == :insufficient_funds do
-      json(conn, %{"status" => "Insufficient Funds", "id" => nil, "signature" => nil})
+      IO.inspect(transaction)
+      json(conn, %{"status" => "Insufficient Funds", "id" => nil, "signature" => nil, "balance" => new_balance})
     else
-      json(conn, %{"status" => "Successful", "id" => transaction.id, "signature" => transaction.signature})
+      json(conn, %{"status" => "Successful", "id" => transaction.id, "signature" => transaction.signature, "balance" => new_balance})
     end
+  end
+
+  def getbalance(conn, params) do
+    public_key = Map.get(params, "publicKey")
+    pid = KryptoCoin.Registry.get(public_key)
+    result = KryptoCoin.Node.get_balance(pid)
+    json(conn, result)
   end
 end

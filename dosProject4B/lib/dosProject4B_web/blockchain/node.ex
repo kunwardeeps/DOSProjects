@@ -29,7 +29,6 @@ defmodule KryptoCoin.Node do
   def handle_call({:send_funds, receiver_public_key, amount}, _from, state) do
     [blockchain, wallet, transaction_pool, utxos] = state
     balance = KryptoCoin.Wallet.get_balance(utxos, wallet.public_key)
-
     print("Trying to send #{amount}, balance = #{balance}, utxos = #{inspect(utxos)}")
 
     if amount > balance do

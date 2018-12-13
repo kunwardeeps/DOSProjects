@@ -10,23 +10,13 @@
 		</header>
 
 		<div class="form">
-			<div class="col-md-4 col-xs-8">
-				<label align="right">Enter Number of Nodes </label>
-			</div>
-			<div class="col-md-4 col-xs-8">
-				<input type="text" id="nodes" value="5">
-			</div>
+			<label>Enter Number of Nodes </label>
+			<input type="text" id="nodes" value="5">
 		</div>
 
 		<div class="btn-group">
-			<div class="col-md-4 col-xs-8">
-				<button type="button" id="begin-btn">Begin Simulation</button> 
-			</div>
-			<div class="col-md-4 col-xs-8">
-			</div>
-			<div class="col-md-4 col-xs-8">
-				<button type="button" id="end-btn">End Simulation</button>
-			</div>
+			<button type="button" id="begin-btn">Begin Simulation</button> 
+			<button type="button" id="end-btn">End Simulation</button>
 		</div>
 
 		<div class="row">
@@ -191,7 +181,7 @@
 						label: "Average Balance Per User",
 						data: [0],
 						fill: true,
-						backgroundColor: "rgba(193, 214, 8,1)"
+						backgroundColor: "rgba(66, 244, 241)"
 					}
 					]
 				}
@@ -225,21 +215,18 @@
 						configAvgBalanceChart.data.labels.push((configAvgBalanceChart.data.labels.length)*5);
 						configAvgBalanceChart.data.datasets[0].data.push(response[4]);
 						avgBalanceChart.update();
+
+						$("#dynamic").empty();
+						for (var i = 0; i < 5; i++) {
+							$('#dynamic').append(generateTable(response[5][i])); 
+						}
 					}
 				});
 			}
 
-			function generateTable(number) {
-				return "<tr><td>" + "hello" +number +"</td><td>" + "hello" +number +"</td></tr>";
+			function generateTable(array) {
+				return "<tr><td>" +array[0] +"</td><td>" + array[1] +"</td></tr>";
 			}
-
-			$(function(){
-				var userInput = 3;
-
-				for (var i = 0; i < userInput; i++) {
-					$('#dynamic').append(generateTable(i + 1)); 
-				}
-			});
 
 		</script>
 	</body>

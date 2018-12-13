@@ -6,44 +6,45 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-8 col-lg-offset-2">
-					<h1 align ="center">Welcome to BitCoin Simulator</h1>
+					<h1 align ="center">Create Transaction</h1>
 				</div>
 			</div>
 		</div>
 		<form id="transact-form">
 			<div class="form-group">
-				<div class="col-md-4 col-xs-8">
+				<div >
 					<label for="senderPublicKeys">Select Sender Public Key</label>
 					<select class="form-control" id="senderPublicKeys" value='a'></select>
 					
 				</div>
-				<div class="col-md-4 col-xs-8">
+				<div >
 					<label for="receiverPublicKeys">Select Receiver Public Key</label>
 					<select class="form-control" id="receiverPublicKeys" value='a'></select>
 				</div>
 			</div>
 			<div class="form-group col-md-12 col-xs-12">
 			</div>
-			<div class="form-group col-md-4 col-xs-8">
-				<label for="enterAmount">Wallet Balance</label>
+			<div class="form-group ">
+				<label for="enterAmount">Sender Wallet Balance</label>
 				<input class="form-control" type="text" id="walletBalance" placeholder="Wallet Balance" readonly> 					
 			</div>
-			<div class="form-group col-md-12 col-xs-12">
-			</div>
-			<div class="form-group col-md-4 col-xs-8">
+			<div class="form-group ">
 				<label for="enterAmount">Enter Transaction Amount</label>
 				<input type="text" class="form-control" id="enterAmount" placeholder="50" value="50">
 			</div>
-			<div class="form-group col-md-12 col-xs-12">
+			<div class="form-group">
 				<button type="button" id="publish-btn">Sign & Confirm</button>
 			</div>
-			<div class="form-group col-md-4 col-xs-8">
+			<div class="form-group">
+				<label for="signature">Signature</label>
 				<input class="form-control" type="text" id="signature" placeholder="Signature" readonly> 					
 			</div>
-			<div class="form-group col-md-4 col-xs-8">
+			<div class="form-group" >
+				<label for="transactionID">Transaction ID</label>
 				<input class="form-control" type="text" id="transactionID" placeholder="Transaction ID" readonly> 					
 			</div>
-			<div class="form-group col-md-4 col-xs-8">
+			<div class="form-group" >
+				<label for="status">Status</label>
 				<input class="form-control" type="text" id="status" placeholder="Status" readonly> 					
 			</div>
 		</form>
@@ -82,28 +83,40 @@
 					}
 				}
 
-			$("#sign-btn").click(function(){
-				var pubKey = document.getElementById("publishKeysSelect").value.length > 0 ?  document.getElementById("publishKeysSelect").value : 'a';
-				var txnAmt = document.getElementById("enterAmount").value;
-				$("#status").val("Pending");
-				console.log("pubKey: ", pubKey, txnAmt)
+			$("#publish-btn").click(function(){
+				var from = document.getElementById("senderPublicKeys").value.length > 0 ?  document.getElementById("senderPublicKeys").value : 'a';
+				var to = document.getElementById("receiverPublicKeys").value.length > 0 ?  document.getElementById("receiverPublicKeys").value : 'a';
+				var amount = document.getElementById("enterAmount").value;
+				
+				console.log("pubKey: ", from, amount)
 
 				$.ajax({
-				url: 'http://localhost:4000/sign',
-				contentType: 'application/json; charset=utf-8',
-				dataType: 'json',				
-				data: '{"pubKey":"' + pubKey + '","txnAmt":"' + txnAmt + '"}',
-				//data: JSON.stringify({pubKey: pubKey , txnAmt: txnAmt}),
+				url: 'http://localhost:4000/gettransact?from='+from+'&to='+to+'&amount='+amount,
 				type: 'get',
 					success: function(response){
 						console.log(response);
+						$("#transactionID").val(response.id);
+						$("#signature").val(response.signature);
+						$("#status").val(response.status);
+						$("#walletBalance").val(response.balance);
 					}
 				});
 				
 			});
 
-			$("#publish-btn").click(function(){
-				alert("Published");
+			$('select[id="senderPublicKeys"]').change(function(){
+
+				var publicKey = $(this).val(); 
+
+				$.ajax({
+				url: 'http://localhost:4000/getbalance?publicKey='+publicKey,
+				type: 'get',
+					success: function(response){
+						console.log(response);
+						$("#walletBalance").val(response);
+					}
+				});
+				
 			});
 		</script>
 

@@ -23,6 +23,8 @@ defmodule DosProject4BWeb.Router do
     get "/start", ChartController, :start
     get "/stop", ChartController, :stop
     get "/transact", TransactionController, :index
+    get "/gettransact", TransactionController, :gettransact
+    get "/getbalance", TransactionController, :getbalance
   end
 
   # Other scopes may use custom stacks.

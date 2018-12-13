@@ -11,7 +11,9 @@ defmodule KryptoCoin.Simulator do
 
   def stop() do
     txn_generator_pid = Process.whereis(:txn_generator)
-    Process.exit(txn_generator_pid, :kill)
+    if txn_generator_pid != nil do
+      Process.exit(txn_generator_pid, :kill)
+    end
     KryptoCoin.Registry.stop_link()
     KryptoCoin.ChartMetrics.stop_link()
   end
