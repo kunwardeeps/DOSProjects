@@ -2,7 +2,11 @@
 
 ## Team Members
 1. Kunwardeep Singh (UFID: 2421-3955)
-1. Gayatri Behera (UFID: 3258-9909)
+2. Gayatri Behera (UFID: 3258-9909)
+
+## Demo Youtube links:
+Simulator Demo: https://youtu.be/HvocoAWOSYw
+Bonus Web Transaction Demo: https://youtu.be/mRvhatkPVGA
 
 ## Installation & Initialisation details
 To start your Phoenix server:
