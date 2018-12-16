@@ -33,7 +33,7 @@ defmodule GossipMain do
 
   def init_nodes(numNodes, i, topology) do
     if (i <= numNodes) do
-      {:ok, pid} = GenServer.start_link(Gossip.Node, [i, numNodes, 0, topology, self()])
+      {:ok, pid} = GenServer.start_link(Gossip.Node, [i, numNodes, 0, topology, nil])
 
       GossipPushSum.Registry.register_process(i, topology, numNodes, pid)
 

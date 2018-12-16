@@ -1,0 +1,236 @@
+<html>
+	<head>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<label></label> 
+			<h1 class="text-center">Dashboard</h1>
+		</header>
+
+		<div class="form">
+			<label>Enter Number of Nodes </label>
+			<input type="text" id="nodes" value="5">
+		</div>
+
+		<div class="btn-group">
+			<button type="button" id="begin-btn">Begin Simulation</button> 
+			<button type="button" id="end-btn">End Simulation</button>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="successTxnsChart">
+				</canvas>
+			</div>
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="failedTxnsChart">
+				</canvas>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="blocksMinedChart">
+				</canvas>
+			</div>
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="totalBitcoinsChart">
+				</canvas>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-6">
+				</canvas>
+					<canvas id="avgBalanceChart">
+				</canvas>
+			</div>
+		</div>		
+		<h2></h2> 
+		<h2>Last 50 Transactions</h2> 
+
+		<div class="row">
+			<table class="table" style="width:800px">
+				<thead>
+					<tr>
+						<th align="left">Transaction ID</th>
+						<th align="left">Amount</th>
+					</tr>
+				</thead>
+				<tbody id='dynamic'>
+				</tbody>
+			</table>
+		</div>
+
+		<script>
+			var id;
+
+			function startSimulator(nodes){
+				$.ajax({
+				url: 'http://localhost:4000/start?nodes='+nodes,
+				type: 'get',
+					success: function(response){
+						console.log(response);
+					}
+				});
+			}
+
+			function stopSimulator(nodes){
+				clearInterval(id);
+				$.ajax({
+				url: 'http://localhost:4000/stop',
+				type: 'get',
+					success: function(response){
+						console.log(response);
+					}
+				});
+			}
+
+			$("#begin-btn").click(function(){
+				var nodes = document.getElementById("nodes").value;
+				startSimulator(nodes)
+				id = setInterval(fetchMetricsData,5000);
+			});
+
+			$("#end-btn").click(function(){
+				stopSimulator();
+			});
+			
+			var configsuccessTxnsChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+				datasets: [
+					{
+						label: "Successful Transactions",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(242, 65, 46,0.7)"
+					}
+					]
+				}
+			};
+
+			var ctx1 = document.getElementById("successTxnsChart").getContext("2d");
+			var successTxnsChart = new Chart(ctx1, configsuccessTxnsChart);
+
+			var configfailedTxnsChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+				datasets: [
+					{
+						label: "Failed Transactions",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(5,247,22,0.7)"
+					}
+					]
+				}
+			};
+
+			var ctx2 = document.getElementById("failedTxnsChart").getContext("2d");
+			var failedTxnsChart = new Chart(ctx2, configfailedTxnsChart);
+
+			var configblocksMinedChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+				datasets: [
+					{
+						label: "Blocks mined",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(107, 66, 244,0.7)"
+					}
+				]
+				}
+			};
+
+			var ctx3 = document.getElementById("blocksMinedChart").getContext("2d");
+			var blocksMinedChart = new Chart(ctx3, configblocksMinedChart);
+
+			var configtotalBitcoinsChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+					datasets: [
+					{
+						label: "Total Bitcoins in Network",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(247, 110, 5,0.7)"
+					}
+					]
+				}
+			};
+
+			var ctx4 = document.getElementById("totalBitcoinsChart").getContext("2d");
+			var totalBitcoinsChart = new Chart(ctx4, configtotalBitcoinsChart);
+
+			var configAvgBalanceChart = {
+				type: 'line',
+				data: {
+				labels: [0],
+					datasets: [
+					{
+						label: "Average Balance Per User",
+						data: [0],
+						fill: true,
+						backgroundColor: "rgba(66, 244, 241, 0.7)"
+					}
+					]
+				}
+			};
+
+			var ctx5 = document.getElementById("avgBalanceChart").getContext("2d");
+			var avgBalanceChart = new Chart(ctx5, configAvgBalanceChart);
+
+			function fetchMetricsData(){
+				$.ajax({
+				url: 'http://localhost:4000/getdata/',
+				type: 'get',
+					success: function(response){
+						console.log(response);
+						configsuccessTxnsChart.data.labels.push((configsuccessTxnsChart.data.labels.length)*5);
+						configsuccessTxnsChart.data.datasets[0].data.push(response[0]);
+						successTxnsChart.update();
+
+						configfailedTxnsChart.data.labels.push((configfailedTxnsChart.data.labels.length)*5);
+						configfailedTxnsChart.data.datasets[0].data.push(response[1]);
+						failedTxnsChart.update();
+
+						configblocksMinedChart.data.labels.push((configblocksMinedChart.data.labels.length)*5);
+						configblocksMinedChart.data.datasets[0].data.push(response[2]);
+						blocksMinedChart.update();
+
+						configtotalBitcoinsChart.data.labels.push((configtotalBitcoinsChart.data.labels.length)*5);
+						configtotalBitcoinsChart.data.datasets[0].data.push(response[3]);
+						totalBitcoinsChart.update();
+
+						configAvgBalanceChart.data.labels.push((configAvgBalanceChart.data.labels.length)*5);
+						configAvgBalanceChart.data.datasets[0].data.push(response[4]);
+						avgBalanceChart.update();
+
+						$("#dynamic").empty();
+						for (var i = 0; i < response[5].length; i++) {
+							$('#dynamic').append(generateTable(response[5][i])); 
+						}
+					}
+				});
+			}
+
+			function generateTable(array) {
+				console.log('array: ', array)
+				return "<tr><td>" +array[0] +"</td><td>" + array[1] +"</td></tr>";
+			}
+
+		</script>
+	</body>
+</html>

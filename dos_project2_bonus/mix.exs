@@ -1,9 +1,9 @@
-defmodule GossipPushSumImpl.MixProject do
+defmodule GossipPushSumBonus.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :dos_project2,
+      app: :dos_project2_bonus,
       version: "0.1.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
@@ -12,7 +12,7 @@ defmodule GossipPushSumImpl.MixProject do
   end
 
   def escript do
-    [main_module: GossipPushSumMain]
+    [main_module: GossipPushSum.Main]
   end
 
   # Run "mix help compile.app" to learn about applications.

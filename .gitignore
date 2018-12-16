@@ -50,3 +50,95 @@ dos_project-*.tar
 
 /DosProject2/.elixir_ls
 
+# The directory Mix will write compiled artifacts to.
+/dos_project2_bonus/_build/
+
+# If you run "mix test --cover", coverage assets end up here.
+/dos_project2_bonus/cover/
+
+# The directory Mix downloads your dependencies sources to.
+/dos_project2_bonus/deps/
+
+# Where 3rd-party dependencies like ExDoc output generated docs.
+/dos_project2_bonus/doc/
+
+# Ignore .fetch files in case you like to edit your project deps locally.
+/dos_project2_bonus/.fetch
+
+# If the VM crashes, it generates a dump, let's ignore it too.
+/dos_project2_bonus/erl_crash.dump
+
+# Also ignore archive artifacts (built via "mix archive.build").
+*.ez
+
+# Ignore package tarball (built via "mix hex.build").
+dos_project-*.tar
+
+/dos_project2_bonus/.elixir_ls
+
+# The directory Mix will write compiled artifacts to.
+/DosProject3/_build/
+
+# If you run "mix test --cover", coverage assets end up here.
+/DosProject3/cover/
+
+# The directory Mix downloads your dependencies sources to.
+/DosProject3/deps/
+
+# Where 3rd-party dependencies like ExDoc output generated docs.
+/DosProject3/doc/
+
+# Ignore .fetch files in case you like to edit your project deps locally.
+/DosProject3/.fetch
+
+# If the VM crashes, it generates a dump, let's ignore it too.
+/DosProject3/erl_crash.dump
+
+/DosProject3/.elixir_ls
+
+
+# The directory Mix will write compiled artifacts to.
+/DosProject4a/_build/
+
+# If you run "mix test --cover", coverage assets end up here.
+/DosProject4a/cover/
+
+# The directory Mix downloads your dependencies sources to.
+/DosProject4a/deps/
+
+# Where 3rd-party dependencies like ExDoc output generated docs.
+/DosProject4a/doc/
+
+# Ignore .fetch files in case you like to edit your project deps locally.
+/DosProject4a/.fetch
+
+# If the VM crashes, it generates a dump, let's ignore it too.
+/DosProject4a/erl_crash.dump
+
+# The directory Mix will write compiled artifacts to.
+/dosProject4B/_build/
+
+# If you run "mix test --cover", coverage assets end up here.
+/dosProject4B/cover/
+
+# The directory Mix downloads your dependencies sources to.
+/dosProject4B/deps/
+
+# Where 3rd-party dependencies like ExDoc output generated docs.
+/dosProject4B/doc/
+
+# Ignore .fetch files in case you like to edit your project deps locally.
+/dosProject4B/.fetch
+
+# If the VM crashes, it generates a dump, let's ignore it too.
+/dosProject4B/erl_crash.dump
+
+/dosProject4B/.elixir_ls
+
+# Also ignore archive artifacts (built via "mix archive.build").
+*.ez
+
+# Ignore package tarball (built via "mix hex.build").
+dos_project-*.tar
+
+/DosProject4a/.elixir_ls
