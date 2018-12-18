@@ -8,6 +8,10 @@
 Simulator Demo: https://youtu.be/HvocoAWOSYw
 Bonus Web Transaction Demo: https://youtu.be/mRvhatkPVGA
 
+## Screenshots
+![Transaction](/transaction.png)
+![Dashboard](/dashboard.png)
+
 ## Installation & Initialisation details
 To start your Phoenix server:
 
