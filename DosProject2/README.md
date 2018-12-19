@@ -1,8 +1,4 @@
-# COT5615: Distributed Operating Systems
-Gossip Simulator
-
-## Results
-![Alt text](/DosProject2/graph.png)
+# Gossip Simulator
 
 ## What is working
 - Both algorithms and all topologies are working under given conditions mentioned in next section.
@@ -11,6 +7,9 @@ Gossip Simulator
 - Overall, greater the number of neighbours, better is the convergence time.
 - Gossip algorithm is working more robustly while push sum sometimes reaches deadlock
 - For bonus requirements, a failure model is implemented in such a way that total number of nodes to be failed can be mentioned via command line
+
+## Results
+![Alt text](/DosProject2/graph.png)
 
 ## Largest network working for given topologies and algorithms:
 
@@ -30,7 +29,7 @@ Gossip Simulator
 2.5. Line: 300
 2.6. Imperfect Line:3000
 
-##Running the program: 
+## Running the program: 
 To start the program in Unix environment, use:
 
 time mix run proj2.exs [num_of_Nodes] [topology] [algorithm]
