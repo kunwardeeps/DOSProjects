@@ -1,9 +1,5 @@
 # DosProject4B
 
-## Team Members
-1. Kunwardeep Singh (UFID: 2421-3955)
-2. Gayatri Behera (UFID: 3258-9909)
-
 ## Demo Youtube links:
 Simulator Demo: https://youtu.be/HvocoAWOSYw
 Bonus Web Transaction Demo: https://youtu.be/mRvhatkPVGA
